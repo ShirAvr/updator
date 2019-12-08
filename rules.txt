@@ -1,0 +1,36 @@
+wildcard: '_' is a sign to catch all nodes in between
+wildcard: 'x/y/z...' is a sign to catch specifiec node
+
+1. replace function name for example:
+	-> pattern1: moudle.remove(_)
+	-> pattern2: moudle.delete(_)
+
+	1.1. remove function name for example:
+		-> pattern1: moudle.remove(_)
+		-> pattern2:
+
+		-> pattern1: _ = moudle.remove(_)
+		-> pattern2:
+
+2. replace attr name:
+	-> pattern1: moudle.config
+	-> pattern2: moudle.options
+
+	2.2. remove attr name:
+		-> pattern1: moudle.config
+		-> pattern2:
+
+		-> pattern1: _ = moudle.config
+		-> pattern2:
+		
+3. remove function param:
+	for example remove param number 1
+	-> pattern1: moudle.execute(x, _)
+	-> pattern2: moudle.execute(_)
+
+	remove param number 2
+	-> pattern1: moudle.execute(x, y, _)
+	-> pattern2: moudle.execute(x, _)
+
+
+
