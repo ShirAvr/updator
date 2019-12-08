@@ -32,5 +32,7 @@ wildcard: 'x/y/z...' is a sign to catch specifiec node
 	-> pattern1: moudle.execute(x, y, _)
 	-> pattern2: moudle.execute(x, _)
 
+4. replace between params:
+
 
 

@@ -7,6 +7,7 @@ import tokenize
 import warnings
 
 __version__ = '0.1.3'
+global variables
 
 class ASTPatternFinder(object):
     """Scans Python code for AST nodes matching pattern.
@@ -53,26 +54,24 @@ class ASTPatternFinder(object):
 
         :param ast.AST tree: The AST in which to search
         """
+
         pattern = self.pattern
         nodetype = type(pattern)
+        # print("pattern: "+ ast.dump(pattern))
+        print("patternToReplace: "+ ast.dump(patternToReplace))
 
         class convertTree(ast.NodeTransformer):
-            def generic_visit(self, node):
-                print("#$$!!$")
+            def visit(self, node):
+                ast.NodeVisitor.visit(self, node)
 
-                newnode = None
                 if isinstance(node, nodetype) and astcheck.is_ast_like(node, pattern):
-                    print("*^^^^^_____^^^^*")
-                    newnode = ast.Name('post', ast.Load())
-                    ast.copy_location(newnode, node)
-                    ast.fix_missing_locations(newnode)
-                    print(ast.dump(newnode))
-                    return newnode
+    
+                    global variables
+                    print("found node: " + ast.dump(node))
+                    newnode = ast.copy_location(patternToReplace, node)
+                    return newnode 
                 else:
-                    newnode = node
                     return node
-
-                ast.NodeVisitor.generic_visit(self, newnode)
 
         tree2 = convertTree().visit(tree)
 
@@ -116,10 +115,13 @@ class ASTPatternFinder(object):
                     except SyntaxError as e:
                         warnings.warn("Failed to parse {}:\n{}".format(filepath, e))
 
-def must_exist_checker(node, path):
+def must_exist_checker(, node, path):
     """Checker function to ensure a field is not empty"""
     if (node is None) or (node == []):
         raise astcheck.ASTMismatch(path, node, "non empty")
+    else:
+        global variables
+        variables.append(node)
 
 def must_not_exist_checker(node, path):
     """Checker function to ensure a field is empty"""
@@ -509,6 +511,8 @@ def prepare_pattern(s):
 
 def execute(pattrenToSearch, pattrenToReplace, filepath):
     ast_pattern1 = prepare_pattern(pattrenToSearch)
+    # pattrenToReplace = "sys.execute_info(??)"
+    # ast_pattern2 = prepare_pattern(pattrenToReplace)
 
 
     patternfinder = ASTPatternFinder(ast_pattern1)
@@ -518,7 +522,7 @@ def execute(pattrenToSearch, pattrenToReplace, filepath):
 
     print("=========== brefore ==========")
     print(ast.dump(tree))
-    print("=========== brefore ==========")
+    print("==============================")
 
     
     patternfinder.scan_ast2(tree, pattrenToReplace)

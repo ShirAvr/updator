@@ -4,7 +4,9 @@ from astsearch1 import execute
 moudleName = "sys"
 codeMoudleName = None
 attrPattern = None
-fileName = "./moudleExample.py"
+callPattern = None
+
+fileName = "./funcExample.py"
 # codeToConvert = import "./pythonCodeExample.py"
 
 # def checkMoudleName(tree):
@@ -43,6 +45,12 @@ class AttrLister(ast.NodeVisitor):
       attrPattern = node
       self.generic_visit(node)
 
+class CallLister(ast.NodeVisitor):
+  def visit_Call(self, node):
+      global callPattern
+      callPattern = node
+      self.generic_visit(node)
+
 fileString = (open(fileName, 'rb')).read()
 tree = ast.parse(fileString)
 
@@ -52,14 +60,14 @@ print("=============")
 print("moudle name: " + codeMoudleName)
 print("=============")
 
-pattrenToSearch = codeMoudleName + ".argv"
-pattrenToReplace = codeMoudleName + ".args"
+pattrenToSearch = codeMoudleName + ".exc_info(??)"
+pattrenToReplace = codeMoudleName + ".execute_info(v1)"
 pattrenToReplace = ast.parse(pattrenToReplace)
-print(ast.dump(pattrenToReplace))
+CallLister().visit(pattrenToReplace)
 
-AttrLister().visit(pattrenToReplace)
+# print("patternToReplace: "+ ast.dump(callPattern))
 
-execute(pattrenToSearch, attrPattern, fileName)
+execute(pattrenToSearch, callPattern, fileName)
 
 # print(ast.dump(tree.body[0]))
 # checkMoudleName(tree)
