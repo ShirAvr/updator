@@ -5,19 +5,21 @@ import os.path
 import sys
 import tokenize
 import warnings
+from functools import partial
 
 __version__ = '0.1.3'
-global variables
+# global variables
 # variables = [ast.Name(id="queen")]
-variables = []
+# variables = []
 
 class ASTPatternFinder(object):
     """Scans Python code for AST nodes matching pattern.
 
     :param ast.AST pattern: The node pattern to search for
     """
-    def __init__(self, pattern):
+    def __init__(self, pattern, patternVars=[]):
         self.pattern = pattern
+        self.variables = patternVars
 
     def scan_ast(self, tree):
         """Walk an AST and yield nodes matching pattern.
@@ -56,8 +58,9 @@ class ASTPatternFinder(object):
 
         :param ast.AST tree: The AST in which to search
         """
-
+        patternSelf = self
         pattern = self.pattern
+        # variables = self.variables
         nodetype = type(pattern)
         # print("pattern: "+ ast.dump(pattern))
         print("patternToReplace: "+ ast.dump(patternToReplace))
@@ -68,7 +71,7 @@ class ASTPatternFinder(object):
 
                 if isinstance(node, nodetype) and astcheck.is_ast_like(node, pattern):
                     print("found node: " + ast.dump(node))
-                    newNode = ASTPatternFinder.insertParams(node, patternToReplace)
+                    newNode = ASTPatternFinder.insertParams(patternSelf, node, patternToReplace)
                     newnode = ast.copy_location(newNode, node)
                     # newnode = ast.copy_location(patternToReplace, node)
                     return newnode 
@@ -81,11 +84,12 @@ class ASTPatternFinder(object):
         print(ast.dump(tree2))
         print("============================")
 
-    def insertParams(foundNode, patternToReplace):
+    def insertParams(self, foundNode, patternToReplace):
+        variables = self.variables
 
         class retransformPattern(ast.NodeTransformer):
             def visit_Name(self, node):
-                global variables
+                # global variables
 
                 print("variables: ->")
                 print(variables)
@@ -138,14 +142,14 @@ class ASTPatternFinder(object):
                     except SyntaxError as e:
                         warnings.warn("Failed to parse {}:\n{}".format(filepath, e))
 
-def must_exist_checker(node, path):
+def must_exist_checker(node, path, _vars=[]):
     """Checker function to ensure a field is not empty"""
     if (node is None) or (node == []):
         raise astcheck.ASTMismatch(path, node, "non empty")
     else:
-        global variables
         print("heyyy??????")
-        variables.append(node)
+        print(_vars)
+        _vars.append(node)
 
 def must_not_exist_checker(node, path):
     """Checker function to ensure a field is empty"""
@@ -226,18 +230,19 @@ WILDCARD_NAME = "__astsearch_wildcard"
 MULTIWILDCARD_NAME = "__astsearch_multiwildcard"
 
 class TemplatePruner(ast.NodeTransformer):
-    # def __init__(self, _vars):
-    #     super(TemplatePruner, self).__init__()
-    #     self._vars = _vars
+    def __init__(self, _vars):
+        super(TemplatePruner, self).__init__()
+        self._vars = _vars
+        self.must_exist_checker = partial(must_exist_checker, _vars=self._vars) 
 
     def visit_Name(self, node):
         if node.id == WILDCARD_NAME:
-            return must_exist_checker  # Allow any node type for a wildcard
+            return self.must_exist_checker   # Allow any node type for a wildcard
         elif node.id == MULTIWILDCARD_NAME:
             # This shouldn't happen, but users will probably confuse their
             # wildcards at times. If it's in a block, it should have been
             # transformed before it's visited.
-            return must_exist_checker
+            return self.must_exist_checker
 
         # Generalise names to allow attributes as well, because these are often
         # interchangeable.
@@ -246,7 +251,7 @@ class TemplatePruner(ast.NodeTransformer):
     def prune_wildcard(self, node, attrname, must_exist=False):
         """Prunes a plain string attribute if it matches WILDCARD_NAME"""
         if getattr(node, attrname, None) in (WILDCARD_NAME, MULTIWILDCARD_NAME):
-            setattr(node, attrname, must_exist_checker)
+            setattr(node, attrname, self.must_exist_checker)
 
     def prune_wildcard_body(self, node, attrname, must_exist=False):
         print("-------> newbody: " + attrname)
@@ -258,12 +263,11 @@ class TemplatePruner(ast.NodeTransformer):
                             ast.Expr(value=ast.Name(id=MULTIWILDCARD_NAME)))
 
         if len(body) == 1 and _is_multiwildcard(body[0]):
-            setattr(node, attrname, must_exist_checker)
+            setattr(node, attrname, self.must_exist_checker)
             return
 
         # Find a ?? node within the block, and replace it with listmiddle
         for i, n in enumerate(body):
-            global variables
             if _is_multiwildcard(n):
                 newbody = body[:i] + astcheck.listmiddle() + body[i+1:]
                 setattr(node, attrname, newbody)
@@ -288,7 +292,6 @@ class TemplatePruner(ast.NodeTransformer):
                     # Last positional argument - wildcard may extend to other groups
                     positional_final_wildcard = True
 
-                global variables
                 args = self._visit_list(node.args[:i]) + astcheck.listmiddle() \
                             + self._visit_list(node.args[i+1:])
                 break
@@ -364,7 +367,6 @@ class TemplatePruner(ast.NodeTransformer):
                     # Last positional argument - wildcard may extend to kwargs
                     positional_final_wildcard = True
 
-                global variables
                 node.args = self._visit_list(node.args[:i]) + astcheck.listmiddle() \
                             + self._visit_list(node.args[i+1:])
 
@@ -424,10 +426,10 @@ class TemplatePruner(ast.NodeTransformer):
                     # Last positional argument - wildcard may extend to kwargs
                     kwargs_are_subset = True
 
-                global variables
-                print("variables:", variables)
+                # global variables
+                print("variables:", self._vars)
                 node.args = self._visit_list(
-                    node.args[:i]) + astcheck.listmiddle(_vars=variables) \
+                    node.args[:i]) + astcheck.listmiddle(_vars=self._vars) \
                             + self._visit_list(node.args[i + 1:])
 
                 # Don't try to handle multiple multiwildcards
@@ -529,7 +531,7 @@ class TemplatePruner(ast.NodeTransformer):
     def _visit_list(self, l):
         return [self.visit(n) for n in l]
 
-def prepare_pattern(s):
+def prepare_pattern(s, _vars=[]):
     """Turn a string pattern into an AST pattern
 
     This parses the string to an AST, and generalises it a bit for sensible
@@ -546,16 +548,18 @@ def prepare_pattern(s):
         # regardless of context: `a.b=2` and `del a.b` should match as well as
         # `c = a.b`
         del pattern.ctx
-    return TemplatePruner().visit(pattern)
+    return TemplatePruner(_vars=_vars).visit(pattern)
 
 def execute(pattrenToSearch, pattrenToReplace, filepath):
-    ast_pattern1 = prepare_pattern(pattrenToSearch)
+    patternVars = []
+
+    ast_pattern1 = prepare_pattern(pattrenToSearch, patternVars)
     # pattrenToReplace = "sys.execute_info(??)"
     # ast_pattern2 = prepare_pattern(pattrenToReplace)
     print("pattern1: " + ast.dump(ast_pattern1))
 
 
-    patternfinder = ASTPatternFinder(ast_pattern1)
+    patternfinder = ASTPatternFinder(ast_pattern1, patternVars)
 
     with open(filepath, 'rb') as f:
         tree = ast.parse(f.read())
