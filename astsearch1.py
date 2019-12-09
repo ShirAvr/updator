@@ -8,6 +8,8 @@ import warnings
 
 __version__ = '0.1.3'
 global variables
+# variables = [ast.Name(id="queen")]
+variables = []
 
 class ASTPatternFinder(object):
     """Scans Python code for AST nodes matching pattern.
@@ -65,10 +67,10 @@ class ASTPatternFinder(object):
                 ast.NodeVisitor.visit(self, node)
 
                 if isinstance(node, nodetype) and astcheck.is_ast_like(node, pattern):
-    
-                    global variables
                     print("found node: " + ast.dump(node))
-                    newnode = ast.copy_location(patternToReplace, node)
+                    newNode = ASTPatternFinder.insertParams(node, patternToReplace)
+                    newnode = ast.copy_location(newNode, node)
+                    # newnode = ast.copy_location(patternToReplace, node)
                     return newnode 
                 else:
                     return node
@@ -79,6 +81,27 @@ class ASTPatternFinder(object):
         print(ast.dump(tree2))
         print("============================")
 
+    def insertParams(foundNode, patternToReplace):
+
+        class retransformPattern(ast.NodeTransformer):
+            def visit_Name(self, node):
+                global variables
+
+                print("variables: ->")
+                print(variables)
+                # print(ast.dump(variables[1]))
+                # print(ast.dump(variables[2]))
+                # print(ast.dump(variables[3]))
+
+                if node.id=="v1" and isinstance(variables, list) and variables != []:
+                    print("node: " + ast.dump(node))
+                    # newNode = ast.copy_location(ast.List(variables[0]), node)
+                    # newNode = (variables[0]), node)
+                    return variables[0]
+                else:
+                    return node
+
+        return retransformPattern().visit(patternToReplace)
 
     def scan_file(self, file):
         """Parse a file and yield AST nodes matching pattern.
@@ -115,12 +138,13 @@ class ASTPatternFinder(object):
                     except SyntaxError as e:
                         warnings.warn("Failed to parse {}:\n{}".format(filepath, e))
 
-def must_exist_checker(, node, path):
+def must_exist_checker(node, path):
     """Checker function to ensure a field is not empty"""
     if (node is None) or (node == []):
         raise astcheck.ASTMismatch(path, node, "non empty")
     else:
         global variables
+        print("heyyy??????")
         variables.append(node)
 
 def must_not_exist_checker(node, path):
@@ -202,6 +226,10 @@ WILDCARD_NAME = "__astsearch_wildcard"
 MULTIWILDCARD_NAME = "__astsearch_multiwildcard"
 
 class TemplatePruner(ast.NodeTransformer):
+    # def __init__(self, _vars):
+    #     super(TemplatePruner, self).__init__()
+    #     self._vars = _vars
+
     def visit_Name(self, node):
         if node.id == WILDCARD_NAME:
             return must_exist_checker  # Allow any node type for a wildcard
@@ -221,6 +249,8 @@ class TemplatePruner(ast.NodeTransformer):
             setattr(node, attrname, must_exist_checker)
 
     def prune_wildcard_body(self, node, attrname, must_exist=False):
+        print("-------> newbody: " + attrname)
+
         """Prunes a code block (e.g. function body) if it is a wildcard"""
         body = getattr(node, attrname, [])
         def _is_multiwildcard(n):
@@ -233,6 +263,7 @@ class TemplatePruner(ast.NodeTransformer):
 
         # Find a ?? node within the block, and replace it with listmiddle
         for i, n in enumerate(body):
+            global variables
             if _is_multiwildcard(n):
                 newbody = body[:i] + astcheck.listmiddle() + body[i+1:]
                 setattr(node, attrname, newbody)
@@ -257,6 +288,7 @@ class TemplatePruner(ast.NodeTransformer):
                     # Last positional argument - wildcard may extend to other groups
                     positional_final_wildcard = True
 
+                global variables
                 args = self._visit_list(node.args[:i]) + astcheck.listmiddle() \
                             + self._visit_list(node.args[i+1:])
                 break
@@ -332,6 +364,7 @@ class TemplatePruner(ast.NodeTransformer):
                     # Last positional argument - wildcard may extend to kwargs
                     positional_final_wildcard = True
 
+                global variables
                 node.args = self._visit_list(node.args[:i]) + astcheck.listmiddle() \
                             + self._visit_list(node.args[i+1:])
 
@@ -380,6 +413,10 @@ class TemplatePruner(ast.NodeTransformer):
         return self.generic_visit(node)
 
     def visit_Call_py35(self, node):
+        print("-------> visit_Call 35: ")
+
+        print(ast.dump(node.args[0]))
+
         kwargs_are_subset = False
         for i, n in enumerate(node.args):
             if astcheck.is_ast_like(n, ast.Name(id=MULTIWILDCARD_NAME)):
@@ -387,8 +424,10 @@ class TemplatePruner(ast.NodeTransformer):
                     # Last positional argument - wildcard may extend to kwargs
                     kwargs_are_subset = True
 
+                global variables
+                print("variables:", variables)
                 node.args = self._visit_list(
-                    node.args[:i]) + astcheck.listmiddle() \
+                    node.args[:i]) + astcheck.listmiddle(_vars=variables) \
                             + self._visit_list(node.args[i + 1:])
 
                 # Don't try to handle multiple multiwildcards
@@ -513,6 +552,7 @@ def execute(pattrenToSearch, pattrenToReplace, filepath):
     ast_pattern1 = prepare_pattern(pattrenToSearch)
     # pattrenToReplace = "sys.execute_info(??)"
     # ast_pattern2 = prepare_pattern(pattrenToReplace)
+    print("pattern1: " + ast.dump(ast_pattern1))
 
 
     patternfinder = ASTPatternFinder(ast_pattern1)

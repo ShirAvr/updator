@@ -56,16 +56,12 @@ tree = ast.parse(fileString)
 
 FuncLister().visit(tree)
 
-print("=============")
-print("moudle name: " + codeMoudleName)
-print("=============")
-
 pattrenToSearch = codeMoudleName + ".exc_info(??)"
 pattrenToReplace = codeMoudleName + ".execute_info(v1)"
 pattrenToReplace = ast.parse(pattrenToReplace)
 CallLister().visit(pattrenToReplace)
 
-# print("patternToReplace: "+ ast.dump(callPattern))
+print("patternToReplace: "+ ast.dump(callPattern))
 
 execute(pattrenToSearch, callPattern, fileName)
 
