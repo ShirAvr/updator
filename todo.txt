@@ -1,0 +1,5 @@
+TODO:
+
+1. unparse ast after transformation
+2. assert between files + return the new code? (for assertion?)
+3. change ast.Name == v1 to an variable special object.. that dynamiclly changed as he does with the wildcard

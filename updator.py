@@ -1,6 +1,5 @@
-"""Intelligently search Python source code"""
-import astcheck, ast
-from astcheck import assert_ast_like
+import astcompare, ast
+from astcompare import assert_ast_like
 import os.path
 import sys
 import tokenize
@@ -28,7 +27,7 @@ class ASTPatternFinder(object):
         """
         nodetype = type(self.pattern)
         for node in ast.walk(tree):
-            if isinstance(node, nodetype) and astcheck.is_ast_like(node, self.pattern):
+            if isinstance(node, nodetype) and astcompare.is_ast_like(node, self.pattern):
                 print("sdfsdfs")
                 yield node
 
@@ -42,7 +41,7 @@ class ASTPatternFinder(object):
         for node in ast.walk(tree):
             counter = counter+1
             print(counter)
-            if isinstance(node, nodetype) and astcheck.is_ast_like(node, self.pattern):
+            if isinstance(node, nodetype) and astcompare.is_ast_like(node, self.pattern):
                 print("******")
                 returnedNode = ast.copy_location(patternToReplace, node) 
                 print(ast.dump(returnedNode))
@@ -69,9 +68,9 @@ class ASTPatternFinder(object):
             def visit(self, node):
                 ast.NodeVisitor.visit(self, node)
 
-                if isinstance(node, nodetype) and astcheck.is_ast_like(node, pattern):
+                if isinstance(node, nodetype) and astcompare.is_ast_like(node, pattern):
                     print("found node: " + ast.dump(node))
-                    newNode = ASTPatternFinder.insertParams(patternSelf, node, patternToReplace)
+                    newNode = ASTPatternFinder.fillVariables(patternSelf, node, patternToReplace)
                     newnode = ast.copy_location(newNode, node)
                     # newnode = ast.copy_location(patternToReplace, node)
                     return newnode 
@@ -84,7 +83,7 @@ class ASTPatternFinder(object):
         print(ast.dump(tree2))
         print("============================")
 
-    def insertParams(self, foundNode, patternToReplace):
+    def fillVariables(self, foundNode, patternToReplace):
         variables = self.variables
 
         class retransformPattern(ast.NodeTransformer):
@@ -145,7 +144,7 @@ class ASTPatternFinder(object):
 def must_exist_checker(node, path, _vars=[]):
     """Checker function to ensure a field is not empty"""
     if (node is None) or (node == []):
-        raise astcheck.ASTMismatch(path, node, "non empty")
+        raise astcompare.ASTMismatch(path, node, "non empty")
     else:
         print("heyyy??????")
         print(_vars)
@@ -154,7 +153,7 @@ def must_exist_checker(node, path, _vars=[]):
 def must_not_exist_checker(node, path):
     """Checker function to ensure a field is empty"""
     if (node is not None) and (node != []):
-        raise astcheck.ASTMismatch(path, node, "empty")
+        raise astcompare.ASTMismatch(path, node, "empty")
 
 class ArgsDefChecker:
     """Checks the arguments of a function definition against pattern arguments.
@@ -176,7 +175,7 @@ class ArgsDefChecker:
         # Check positional-or-keyword args
         if self.args:
             if isinstance(self.args, list):
-                astcheck._check_node_list(path+['args'], sample_node.args, self.args)
+                astcompare._check_node_list(path+['args'], sample_node.args, self.args)
             else:
                 assert_ast_like(sample_node.args, self.args)
 
@@ -189,7 +188,7 @@ class ArgsDefChecker:
                 try:
                     sample_dflt = sample_arg_defaults[argname]
                 except KeyError:
-                    raise astcheck.ASTMismatch(path + ['defaults', argname],
+                    raise astcompare.ASTMismatch(path + ['defaults', argname],
                                                "(missing default)", dflt)
                 else:
                     assert_ast_like(dflt, sample_dflt, path + ['defaults', argname])
@@ -208,7 +207,7 @@ class ArgsDefChecker:
             try:
                 sample_arg, sample_dflt = sample_kwonlyargs[argname]
             except KeyError:
-                raise astcheck.ASTMismatch(path+['kwonlyargs'], '(missing)', 'keyword arg %s' % argname)
+                raise astcompare.ASTMismatch(path+['kwonlyargs'], '(missing)', 'keyword arg %s' % argname)
             else:
                 assert_ast_like(sample_arg, template_arg, path+['kwonlyargs', argname])
                 if template_dflt is not None:
@@ -220,7 +219,7 @@ class ArgsDefChecker:
             template_kwarg_names = {k.arg for k,d in self.kwonly_args_dflts}
             excess_names = set(sample_kwonlyargs) - template_kwarg_names
             if excess_names:
-                raise astcheck.ASTMismatch(path+ ['kwonlyargs'], excess_names, "(not present in template)")
+                raise astcompare.ASTMismatch(path+ ['kwonlyargs'], excess_names, "(not present in template)")
 
         # **kwargs
         if self.kwarg:
@@ -246,7 +245,7 @@ class TemplatePruner(ast.NodeTransformer):
 
         # Generalise names to allow attributes as well, because these are often
         # interchangeable.
-        return astcheck.name_or_attr(node.id)
+        return astcompare.name_or_attr(node.id)
 
     def prune_wildcard(self, node, attrname, must_exist=False):
         """Prunes a plain string attribute if it matches WILDCARD_NAME"""
@@ -259,7 +258,7 @@ class TemplatePruner(ast.NodeTransformer):
         """Prunes a code block (e.g. function body) if it is a wildcard"""
         body = getattr(node, attrname, [])
         def _is_multiwildcard(n):
-            return astcheck.is_ast_like(n,
+            return astcompare.is_ast_like(n,
                             ast.Expr(value=ast.Name(id=MULTIWILDCARD_NAME)))
 
         if len(body) == 1 and _is_multiwildcard(body[0]):
@@ -269,7 +268,7 @@ class TemplatePruner(ast.NodeTransformer):
         # Find a ?? node within the block, and replace it with listmiddle
         for i, n in enumerate(body):
             if _is_multiwildcard(n):
-                newbody = body[:i] + astcheck.listmiddle() + body[i+1:]
+                newbody = body[:i] + astcompare.listmiddle() + body[i+1:]
                 setattr(node, attrname, newbody)
 
     def visit_Attribute(self, node):
@@ -292,7 +291,7 @@ class TemplatePruner(ast.NodeTransformer):
                     # Last positional argument - wildcard may extend to other groups
                     positional_final_wildcard = True
 
-                args = self._visit_list(node.args[:i]) + astcheck.listmiddle() \
+                args = self._visit_list(node.args[:i]) + astcompare.listmiddle() \
                             + self._visit_list(node.args[i+1:])
                 break
         else:
@@ -362,12 +361,12 @@ class TemplatePruner(ast.NodeTransformer):
     def visit_Call(self, node):
         positional_final_wildcard = False
         for i, n in enumerate(node.args):
-            if astcheck.is_ast_like(n, ast.Name(id=MULTIWILDCARD_NAME)):
+            if astcompare.is_ast_like(n, ast.Name(id=MULTIWILDCARD_NAME)):
                 if i+1 == len(node.args):
                     # Last positional argument - wildcard may extend to kwargs
                     positional_final_wildcard = True
 
-                node.args = self._visit_list(node.args[:i]) + astcheck.listmiddle() \
+                node.args = self._visit_list(node.args[:i]) + astcompare.listmiddle() \
                             + self._visit_list(node.args[i+1:])
 
                 # Don't try to handle multiple multiwildcards
@@ -390,9 +389,9 @@ class TemplatePruner(ast.NodeTransformer):
                     if k.arg == MULTIWILDCARD_NAME:
                         continue
                     if k.arg in sample_kwargs:
-                        astcheck.assert_ast_like(sample_kwargs[k.arg], k.value, path+[k.arg])
+                        astcompare.assert_ast_like(sample_kwargs[k.arg], k.value, path+[k.arg])
                     else:
-                        raise astcheck.ASTMismatch(path, '(missing)', 'keyword arg %s' % k.arg)
+                        raise astcompare.ASTMismatch(path, '(missing)', 'keyword arg %s' % k.arg)
 
             if template_keywords:
                 node.keywords = kwargs_checker
@@ -421,7 +420,7 @@ class TemplatePruner(ast.NodeTransformer):
 
         kwargs_are_subset = False
         for i, n in enumerate(node.args):
-            if astcheck.is_ast_like(n, ast.Name(id=MULTIWILDCARD_NAME)):
+            if astcompare.is_ast_like(n, ast.Name(id=MULTIWILDCARD_NAME)):
                 if i + 1 == len(node.args):
                     # Last positional argument - wildcard may extend to kwargs
                     kwargs_are_subset = True
@@ -429,7 +428,7 @@ class TemplatePruner(ast.NodeTransformer):
                 # global variables
                 print("variables:", self._vars)
                 node.args = self._visit_list(
-                    node.args[:i]) + astcheck.listmiddle(_vars=self._vars) \
+                    node.args[:i]) + astcompare.listmiddle(_vars=self._vars) \
                             + self._visit_list(node.args[i + 1:])
 
                 # Don't try to handle multiple multiwildcards
@@ -447,10 +446,10 @@ class TemplatePruner(ast.NodeTransformer):
                     if k.arg == MULTIWILDCARD_NAME:
                         continue
                     if k.arg in sample_kwargs:
-                        astcheck.assert_ast_like(sample_kwargs[k.arg], k.value,
+                        astcompare.assert_ast_like(sample_kwargs[k.arg], k.value,
                                                  path + [k.arg])
                     else:
-                        raise astcheck.ASTMismatch(path, '(missing)',
+                        raise astcompare.ASTMismatch(path, '(missing)',
                                                    'keyword arg %s' % k.arg)
 
             if template_keywords:
@@ -550,6 +549,23 @@ def prepare_pattern(s, _vars=[]):
         del pattern.ctx
     return TemplatePruner(_vars=_vars).visit(pattern)
 
+def prepareReplacingPattern(pattrenToReplace):
+    class AttrLister(ast.NodeVisitor):
+        def visit_Attribute(self, node):
+            global attrPattern
+            attrPattern = node
+            self.generic_visit(node)
+
+    class CallLister(ast.NodeVisitor):
+        def visit_Call(self, node):
+            global callPattern
+            callPattern = node
+            self.generic_visit(node)
+
+    pattrenToReplace = ast.parse(pattrenToReplace)
+    CallLister().visit(pattrenToReplace)
+    return pattrenToReplace
+
 def execute(pattrenToSearch, pattrenToReplace, filepath):
     patternVars = []
 
@@ -557,7 +573,7 @@ def execute(pattrenToSearch, pattrenToReplace, filepath):
     # pattrenToReplace = "sys.execute_info(??)"
     # ast_pattern2 = prepare_pattern(pattrenToReplace)
     print("pattern1: " + ast.dump(ast_pattern1))
-
+    pattrenToReplace = prepareReplacingPattern(pattrenToReplace)
 
     patternfinder = ASTPatternFinder(ast_pattern1, patternVars)
 

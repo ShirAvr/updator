@@ -1,4 +1,10 @@
 import ast
+# from updator import execute
+import sys
+import importlib
+import unittest
+
+sys.path.insert(1, '../updator')
 from updator import execute
 
 moudleName = "sys"
@@ -9,17 +15,8 @@ callPattern = None
 fileName = "./funcExample.py"
 # codeToConvert = import "./pythonCodeExample.py"
 
-# def checkMoudleName(tree):
-	# for node in ast.walk(tree):
-		#print(ast.dump(node))
 
-		# for field in ast.iter_fields(node):
-		# print(field)
-		# print(node.body)
-		# print("===")
-
-# def checkMoudleName(tree):
-
+# this part of code should move into updator.py! (retrieveMoudleAlias)
 # By that we can find the name of the moudle in the source code.
 # if they used import.. as - we could figure out the alias of the moudle
 class AliasLister(ast.NodeVisitor):
@@ -58,18 +55,34 @@ FuncLister().visit(tree)
 
 pattrenToSearch = codeMoudleName + ".exc_info(??)"
 pattrenToReplace = codeMoudleName + ".execute_info(v1)"
-pattrenToReplace = ast.parse(pattrenToReplace)
-CallLister().visit(pattrenToReplace)
+# pattrenToReplace = ast.parse(pattrenToReplace)
+# CallLister().visit(pattrenToReplace)
 
-print("patternToReplace: "+ ast.dump(callPattern))
+# print("patternToReplace: "+ ast.dump(callPattern))
 
-execute(pattrenToSearch, callPattern, fileName)
+# execute(pattrenToSearch, callPattern, fileName)
 
-# print(ast.dump(tree.body[0]))
-# checkMoudleName(tree)
+class UpdatorTests(unittest.TestCase):
+  def __init__(self, *args, **kwargs):
+    super(UpdatorTests, self).__init__(*args, **kwargs)
+    global codeMoudleName
+    self.codeMoudleName = codeMoudleName;
 
-# pattren1 = ast.parse("print()")
-# pattren2 = ast.parse("scan()")
-# astCodeToConvert = ast.parse(codeToConvert)
+  def test_convert_function_name(self):
+    pattrenToSearch = self.codeMoudleName + ".exc_info(??)"
+    pattrenToReplace = self.codeMoudleName + ".execute_info(v1)"
+    execute(pattrenToSearch, pattrenToReplace, fileName)
+
+    self.assertTrue(True)
+
+  def test_convert_function_name_with_one_arg(self):
+    self.assertTrue(True)
+
+  def test_convert_function_name_with_args(self):
+    self.assertTrue(True)
+
+  def test_convert_attribute_name(self):
+    self.assertTrue(True)
+
 
 

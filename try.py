@@ -1,5 +1,5 @@
 import ast
-from astsearch1 import execute
+from updator import execute
 
 moudleName = "sys"
 codeMoudleName = None
