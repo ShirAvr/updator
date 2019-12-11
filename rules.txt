@@ -23,7 +23,9 @@ wildcard: 'x/y/z...' is a sign to catch specifiec node
 		-> pattern1: _ = moudle.config
 		-> pattern2:
 		
-3. remove function param:
+3. add function param:
+
+4. remove function param:
 	for example remove param number 1
 	-> pattern1: moudle.execute(x, _)
 	-> pattern2: moudle.execute(_)
@@ -32,7 +34,7 @@ wildcard: 'x/y/z...' is a sign to catch specifiec node
 	-> pattern1: moudle.execute(x, y, _)
 	-> pattern2: moudle.execute(x, _)
 
-4. replace between params:
+5. replace between params:
 
 
 

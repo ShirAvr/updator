@@ -146,7 +146,6 @@ def must_exist_checker(node, path, _vars=[]):
     if (node is None) or (node == []):
         raise astcompare.ASTMismatch(path, node, "non empty")
     else:
-        print("heyyy??????")
         print(_vars)
         _vars.append(node)
 
@@ -530,7 +529,7 @@ class TemplatePruner(ast.NodeTransformer):
     def _visit_list(self, l):
         return [self.visit(n) for n in l]
 
-def prepare_pattern(s, _vars=[]):
+def prepare_pattern(s, _vars=[], moudleAlias=""):
     """Turn a string pattern into an AST pattern
 
     This parses the string to an AST, and generalises it a bit for sensible
@@ -538,6 +537,8 @@ def prepare_pattern(s, _vars=[]):
     the pattern will match names or attribute access (i.e. ``foo`` will match
     ``bar.foo`` in files).
     """
+    s = addAliasToPatterns(s, moudleAlias)
+
     s = s.replace('??', MULTIWILDCARD_NAME).replace('?', WILDCARD_NAME)
     pattern = ast.parse(s).body[0]
     if isinstance(pattern, ast.Expr):
@@ -549,7 +550,7 @@ def prepare_pattern(s, _vars=[]):
         del pattern.ctx
     return TemplatePruner(_vars=_vars).visit(pattern)
 
-def prepareReplacingPattern(pattrenToReplace):
+def prepareReplacingPattern(pattrenToReplace, moudleAlias):
     class AttrLister(ast.NodeVisitor):
         def visit_Attribute(self, node):
             global attrPattern
@@ -562,23 +563,31 @@ def prepareReplacingPattern(pattrenToReplace):
             callPattern = node
             self.generic_visit(node)
 
+    pattrenToReplace = addAliasToPatterns(pattrenToReplace, moudleAlias)
     pattrenToReplace = ast.parse(pattrenToReplace)
     CallLister().visit(pattrenToReplace)
     return pattrenToReplace
 
-def execute(pattrenToSearch, pattrenToReplace, filepath):
+
+def addAliasToPatterns(pattern, moudleAlias):
+    return moudleAlias + "." + pattern;
+
+def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
+    with open(filepath, 'rb') as f:
+        tree = ast.parse(f.read())
+
+    moudleAlias = findMoudleAlias(tree, givenMoudleName)
+
     patternVars = []
 
-    ast_pattern1 = prepare_pattern(pattrenToSearch, patternVars)
+    ast_pattern1 = prepare_pattern(pattrenToSearch, patternVars, moudleAlias)
     # pattrenToReplace = "sys.execute_info(??)"
     # ast_pattern2 = prepare_pattern(pattrenToReplace)
     print("pattern1: " + ast.dump(ast_pattern1))
-    pattrenToReplace = prepareReplacingPattern(pattrenToReplace)
+    pattrenToReplace = prepareReplacingPattern(pattrenToReplace, moudleAlias)
 
     patternfinder = ASTPatternFinder(ast_pattern1, patternVars)
 
-    with open(filepath, 'rb') as f:
-        tree = ast.parse(f.read())
 
     print("=========== brefore ==========")
     print(ast.dump(tree))
@@ -591,6 +600,38 @@ def execute(pattrenToSearch, pattrenToReplace, filepath):
     #     print(ast.dump(node))
 
 
+def findMoudleAlias(tree, givenMoudleName):
+    class AliasFinder(ast.NodeVisitor):
+
+      def __init__(self, givenMoudleName):
+        super(AliasFinder, self).__init__()
+        self.givenMoudleName = givenMoudleName;
+        self.aliasMoudleName = None;
+
+      def visit_alias(self, node):
+          if (node.name is self.givenMoudleName and node.asname is not None):
+            self.aliasMoudleName = node.asname
+          elif (node.name is self.givenMoudleName and node.asname is None):
+            self.aliasMoudleName = node.name
+
+      def get_found_alias(self):
+        return self.aliasMoudleName
+
+    class ImportFinder(ast.NodeVisitor):
+      def __init__(self, givenMoudleName):
+        super(ImportFinder, self).__init__()
+        self.givenMoudleName = givenMoudleName;
+        self.aliasFinderClass = AliasFinder(self.givenMoudleName)
+
+      def visit_Import(self, node):
+        self.aliasFinderClass.visit(node)
+
+      def get_found_alias(self):
+        return self.aliasFinderClass.get_found_alias()
+
+    aliasFinderClass = ImportFinder(givenMoudleName)
+    aliasFinderClass.visit(tree)
+    return aliasFinderClass.get_found_alias()
 
 def main(argv=None):
     """Run astsearch from the command line.
