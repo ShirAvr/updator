@@ -51,7 +51,7 @@ class name_or_attr(object):
         self.name = name
 
     def __repr__(self):
-        return "astcheck.name_or_attr(%r)" % self.name
+        return "astcompare.name_or_attr(%r)" % self.name
 
     def __call__(self, node, path):
         if isinstance(node, ast.Name):
