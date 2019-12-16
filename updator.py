@@ -17,7 +17,7 @@ class ASTPatternFinder(object):
 
     :param ast.AST pattern: The node pattern to search for
     """
-    def __init__(self, pattern, patternVars=[]):
+    def __init__(self, pattern, patternVars={}):
         self.pattern = pattern
         self.variables = patternVars
 
@@ -98,17 +98,19 @@ class ASTPatternFinder(object):
                 # print(ast.dump(variables[2]))
                 # print(ast.dump(variables[3]))
 
-                if patternSelf.is_wildcard(node) and isinstance(variables, list) and variables != []:
-                    print("node: " + ast.dump(node))
+                # and isinstance(variables, list) and variables != []
+                if patternSelf.is_wildcard(node):
+                    print("is_wildcard is_wildcard: " + ast.dump(node))
                     # newNode = ast.copy_location(ast.List(variables[0]), node)
                     # newNode = (variables[0]), node)
-                    return variables[0]
+                    return variables[node.id]
                 else:
                     return node
 
         return retransformPattern().visit(patternToReplace)
 
     def is_wildcard(self, node):
+        print("node.id: " , node.id)
         return node.id in [WILDCARD_NAME, MULTIWILDCARD_NAME]
 
     def scan_file(self, file):
@@ -559,17 +561,20 @@ def prepare_pattern(s, _vars=[], moudleAlias=""):
     # return TemplatePruner(_vars=_vars).visit(pattern)
     return pattern
 
+def defineWildcard(matchedWildcard):
+    variable_num = matchedWildcard.group()[1]
+    return WILDCARD_NAME + variable_num
+
 def replacingWildCardSigns(pattern):
+
     print("====== before replace =======")
     print(pattern)
     pattern = pattern.replace(MULTIWILDCARD_SIGN, MULTIWILDCARD_NAME)
-    pattern = re.sub(r'[$]\d', WILDCARD_NAME, pattern)
+    pattern = re.sub(r'[$]\d', defineWildcard, pattern)
+    # pattern = re.sub(r'[$]\d', WILDCARD_NAME, pattern)
     print("====== after replace =======")
     print(pattern)
     return pattern
-
-def defineWildcards(sign):
-    print("ehy")
 
 def prepareReplacingPattern(pattrenToReplace, moudleAlias):
     pattrenToReplace = replacingWildCardSigns(pattrenToReplace)
@@ -601,7 +606,7 @@ def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
 
     moudleAlias = findMoudleAlias(tree, givenMoudleName)
 
-    patternVars = []
+    patternVars = {}
 
     ast_pattern1 = prepare_pattern(pattrenToSearch, patternVars, moudleAlias)
     # pattrenToReplace = "sys.execute_info(??)"

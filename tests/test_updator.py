@@ -42,8 +42,8 @@ class UpdatorTests(unittest.TestCase):
     self.codeMoudleName = codeMoudleName;
 
   def test_convert_function_name(self):
-    pattrenToSearch = "exc_info($all)"
-    pattrenToReplace = "execute_info($all)"
+    pattrenToSearch = "exc_info($1, $2)"
+    pattrenToReplace = "execute_info($1, $2)"
     execute(pattrenToSearch, pattrenToReplace, fileName, moudleName)
 
     self.assertTrue(True)

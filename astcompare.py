@@ -195,19 +195,17 @@ def assert_ast_like(sample, template, variables, _path=None):
             if template_field and (isinstance(template_field[0], ast.AST)
                                      or callable(template_field[0])):
 
-                if template_field[0].id is MULTIWILDCARD_NAME:
-                    treatWildcard(sample_field, variables)
-                    print("hellllllllo")
+                # if template_field[0].id is MULTIWILDCARD_NAME:
+                if is_wildcard(template_field[0].id):
+                    treatWildcard(sample_field, variables, template_field[0].id)
                 else:
                     _check_node_list(field_path, sample_field, template_field, variables=variables)
             else:
-                # print("template_field: " + ast.dump(template_field))
                 # List of plain values, e.g. 'global' statement names
                 if sample_field != template_field:
                     raise ASTPlainListMismatch(field_path, sample_field, template_field)
 
         elif isinstance(template_field, ast.AST):
-            print("template_field: " + ast.dump(template_field))
             assert_ast_like(sample_field, template_field, variables, field_path)
         
         elif callable(template_field):
@@ -215,14 +213,18 @@ def assert_ast_like(sample, template, variables, _path=None):
             template_field(sample_field, field_path)
 
         else:
-            print("template_field:" + template_field)
             # Single value, e.g. Name.id
             if sample_field != template_field:
                 raise ASTPlainObjMismatch(field_path, sample_field, template_field)
 
-def treatWildcard(nodesToSave, variables):
+def is_wildcard(wildcardName):
+    wildcardName = wildcardName[:-1] 
+    return wildcardName in [WILDCARD_NAME, MULTIWILDCARD_NAME]
+
+def treatWildcard(nodesToSave, variables, wildcardName):
     print("treatWildcard")
-    variables.append(nodesToSave)
+    # variables.append(nodesToSave)
+    variables[wildcardName] = nodesToSave
     print(variables)
 
 def is_ast_like(sample, template, variables):
