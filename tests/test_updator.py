@@ -35,15 +35,6 @@ class CallLister(ast.NodeVisitor):
       callPattern = node
       self.generic_visit(node)
 
-
-pattrenToSearch = "exc_info(??)"
-pattrenToReplace = "execute_info(v1)"
-
-# pattrenToReplace = ast.parse(pattrenToReplace)
-# CallLister().visit(pattrenToReplace)
-# print("patternToReplace: "+ ast.dump(callPattern))
-# execute(pattrenToSearch, callPattern, fileName)
-
 class UpdatorTests(unittest.TestCase):
   def __init__(self, *args, **kwargs):
     super(UpdatorTests, self).__init__(*args, **kwargs)
@@ -51,8 +42,8 @@ class UpdatorTests(unittest.TestCase):
     self.codeMoudleName = codeMoudleName;
 
   def test_convert_function_name(self):
-    pattrenToSearch = "exc_info(??)"
-    pattrenToReplace = "execute_info(v1)"
+    pattrenToSearch = "exc_info($all)"
+    pattrenToReplace = "execute_info($all)"
     execute(pattrenToSearch, pattrenToReplace, fileName, moudleName)
 
     self.assertTrue(True)

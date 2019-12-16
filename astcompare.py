@@ -5,6 +5,9 @@ PY3 = sys.version_info[0] >= 3
 
 __version__ = '0.0.1'
 
+WILDCARD_NAME = "__updator_wildcard"
+MULTIWILDCARD_NAME = "__updator_multiwildcard"
+
 if PY3:
     def mkarg(name):
         return ast.arg(arg=name)
@@ -155,7 +158,7 @@ class ASTPlainObjMismatch(ASTMismatch):
         return "At {}, found {!r} instead of {!r}".format(format_path(self.path),
                     self.got, self.expected)
 
-def _check_node_list(path, sample, template, start_enumerate=0):
+def _check_node_list(path, sample, template, variables, start_enumerate=0):
     """Check a list of nodes, e.g. function body"""
     if len(sample) != len(template):
         raise ASTNodeListMismatch(path, sample, template)
@@ -165,9 +168,9 @@ def _check_node_list(path, sample, template, start_enumerate=0):
             # Checker function inside a list
             template_node(sample_node, path+[i])
         else:
-            assert_ast_like(sample_node, template_node, path+[i])
+            assert_ast_like(sample_node, template_node, variables, path+[i])
 
-def assert_ast_like(sample, template, _path=None):
+def assert_ast_like(sample, template, variables, _path=None):
     """Check that the sample AST matches the template.
     
     Raises a suitable subclass of :exc:`ASTMismatch` if a difference is detected.
@@ -191,28 +194,41 @@ def assert_ast_like(sample, template, _path=None):
         if isinstance(template_field, list):
             if template_field and (isinstance(template_field[0], ast.AST)
                                      or callable(template_field[0])):
-                _check_node_list(field_path, sample_field, template_field)
+
+                if template_field[0].id is MULTIWILDCARD_NAME:
+                    treatWildcard(sample_field, variables)
+                    print("hellllllllo")
+                else:
+                    _check_node_list(field_path, sample_field, template_field, variables=variables)
             else:
+                # print("template_field: " + ast.dump(template_field))
                 # List of plain values, e.g. 'global' statement names
                 if sample_field != template_field:
                     raise ASTPlainListMismatch(field_path, sample_field, template_field)
 
         elif isinstance(template_field, ast.AST):
-            assert_ast_like(sample_field, template_field, field_path)
+            print("template_field: " + ast.dump(template_field))
+            assert_ast_like(sample_field, template_field, variables, field_path)
         
         elif callable(template_field):
             # Checker function
             template_field(sample_field, field_path)
 
         else:
+            print("template_field:" + template_field)
             # Single value, e.g. Name.id
             if sample_field != template_field:
                 raise ASTPlainObjMismatch(field_path, sample_field, template_field)
 
-def is_ast_like(sample, template):
+def treatWildcard(nodesToSave, variables):
+    print("treatWildcard")
+    variables.append(nodesToSave)
+    print(variables)
+
+def is_ast_like(sample, template, variables):
     """Returns True if the sample AST matches the template."""
     try:
-        assert_ast_like(sample, template)
+        assert_ast_like(sample, template, variables)
         return True
     except ASTMismatch:
         return False

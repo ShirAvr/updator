@@ -4,6 +4,7 @@ import os.path
 import sys
 import tokenize
 import warnings
+import re
 from functools import partial
 
 __version__ = '0.1.3'
@@ -68,7 +69,7 @@ class ASTPatternFinder(object):
             def visit(self, node):
                 ast.NodeVisitor.visit(self, node)
 
-                if isinstance(node, nodetype) and astcompare.is_ast_like(node, pattern):
+                if isinstance(node, nodetype) and astcompare.is_ast_like(node, pattern, patternSelf.variables):
                     print("found node: " + ast.dump(node))
                     newNode = ASTPatternFinder.fillVariables(patternSelf, node, patternToReplace)
                     newnode = ast.copy_location(newNode, node)
@@ -85,6 +86,7 @@ class ASTPatternFinder(object):
 
     def fillVariables(self, foundNode, patternToReplace):
         variables = self.variables
+        patternSelf = self
 
         class retransformPattern(ast.NodeTransformer):
             def visit_Name(self, node):
@@ -96,7 +98,7 @@ class ASTPatternFinder(object):
                 # print(ast.dump(variables[2]))
                 # print(ast.dump(variables[3]))
 
-                if node.id=="v1" and isinstance(variables, list) and variables != []:
+                if patternSelf.is_wildcard(node) and isinstance(variables, list) and variables != []:
                     print("node: " + ast.dump(node))
                     # newNode = ast.copy_location(ast.List(variables[0]), node)
                     # newNode = (variables[0]), node)
@@ -105,6 +107,9 @@ class ASTPatternFinder(object):
                     return node
 
         return retransformPattern().visit(patternToReplace)
+
+    def is_wildcard(self, node):
+        return node.id in [WILDCARD_NAME, MULTIWILDCARD_NAME]
 
     def scan_file(self, file):
         """Parse a file and yield AST nodes matching pattern.
@@ -224,8 +229,11 @@ class ArgsDefChecker:
         if self.kwarg:
             assert_ast_like(sample_node.kwarg, self.kwarg)
 
-WILDCARD_NAME = "__astsearch_wildcard"
-MULTIWILDCARD_NAME = "__astsearch_multiwildcard"
+WILDCARD_NAME = "__updator_wildcard"
+MULTIWILDCARD_NAME = "__updator_multiwildcard"
+
+# WILDCARD_SIGN = "$"
+MULTIWILDCARD_SIGN = "$all"
 
 class TemplatePruner(ast.NodeTransformer):
     def __init__(self, _vars):
@@ -538,8 +546,8 @@ def prepare_pattern(s, _vars=[], moudleAlias=""):
     ``bar.foo`` in files).
     """
     s = addAliasToPatterns(s, moudleAlias)
+    s = replacingWildCardSigns(s)
 
-    s = s.replace('??', MULTIWILDCARD_NAME).replace('?', WILDCARD_NAME)
     pattern = ast.parse(s).body[0]
     if isinstance(pattern, ast.Expr):
         pattern = pattern.value
@@ -548,9 +556,24 @@ def prepare_pattern(s, _vars=[], moudleAlias=""):
         # regardless of context: `a.b=2` and `del a.b` should match as well as
         # `c = a.b`
         del pattern.ctx
-    return TemplatePruner(_vars=_vars).visit(pattern)
+    # return TemplatePruner(_vars=_vars).visit(pattern)
+    return pattern
+
+def replacingWildCardSigns(pattern):
+    print("====== before replace =======")
+    print(pattern)
+    pattern = pattern.replace(MULTIWILDCARD_SIGN, MULTIWILDCARD_NAME)
+    pattern = re.sub(r'[$]\d', WILDCARD_NAME, pattern)
+    print("====== after replace =======")
+    print(pattern)
+    return pattern
+
+def defineWildcards(sign):
+    print("ehy")
 
 def prepareReplacingPattern(pattrenToReplace, moudleAlias):
+    pattrenToReplace = replacingWildCardSigns(pattrenToReplace)
+
     class AttrLister(ast.NodeVisitor):
         def visit_Attribute(self, node):
             global attrPattern
