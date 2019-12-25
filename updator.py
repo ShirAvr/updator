@@ -1,5 +1,6 @@
 import astcompare, ast
 from astcompare import assert_ast_like
+import astor
 import os.path
 import sys
 import tokenize
@@ -43,7 +44,6 @@ class ASTPatternFinder(object):
             counter = counter+1
             print(counter)
             if isinstance(node, nodetype) and astcompare.is_ast_like(node, self.pattern):
-                print("******")
                 returnedNode = ast.copy_location(patternToReplace, node) 
                 print(ast.dump(returnedNode))
                 # node = patternToReplace
@@ -60,17 +60,16 @@ class ASTPatternFinder(object):
         """
         patternSelf = self
         pattern = self.pattern
-        # variables = self.variables
         nodetype = type(pattern)
-        # print("pattern: "+ ast.dump(pattern))
-        print("patternToReplace: "+ ast.dump(patternToReplace))
+        
+        # print("patternToReplace: "+ ast.dump(patternToReplace))
 
         class convertTree(ast.NodeTransformer):
             def visit(self, node):
                 ast.NodeVisitor.visit(self, node)
 
                 if isinstance(node, nodetype) and astcompare.is_ast_like(node, pattern, patternSelf.variables):
-                    print("found node: " + ast.dump(node))
+                    # print("found node: " + ast.dump(node))
                     newNode = ASTPatternFinder.fillVariables(patternSelf, node, patternToReplace)
                     newnode = ast.copy_location(newNode, node)
                     # newnode = ast.copy_location(patternToReplace, node)
@@ -80,9 +79,7 @@ class ASTPatternFinder(object):
 
         tree2 = convertTree().visit(tree)
 
-        print("=========== after: ==========")
-        print(ast.dump(tree2))
-        print("============================")
+
 
     def fillVariables(self, foundNode, patternToReplace):
         variables = self.variables
@@ -90,17 +87,10 @@ class ASTPatternFinder(object):
 
         class retransformPattern(ast.NodeTransformer):
             def visit_Name(self, node):
-                # global variables
-
-                print("variables: ->")
-                print(variables)
-                # print(ast.dump(variables[1]))
-                # print(ast.dump(variables[2]))
-                # print(ast.dump(variables[3]))
+                # print(variables)
 
                 # and isinstance(variables, list) and variables != []
                 if patternSelf.is_wildcard(node):
-                    print("is_wildcard is_wildcard: " + ast.dump(node))
                     # newNode = ast.copy_location(ast.List(variables[0]), node)
                     # newNode = (variables[0]), node)
                     return variables[node.id]
@@ -110,20 +100,33 @@ class ASTPatternFinder(object):
         return retransformPattern().visit(patternToReplace)
 
     def is_wildcard(self, node):
-        print("node.id: " , node.id)
-        return node.id in [WILDCARD_NAME, MULTIWILDCARD_NAME]
+        is_wildcard = node.id[:-1] == WILDCARD_NAME
+        is_multi_wildcard = node.id == MULTIWILDCARD_NAME
+        return is_wildcard or is_multi_wildcard
+
+    # def is_wildcard(self, node):
+    #     wildcardName = node.id[:-1] 
+    #     # print("node.id wildcardName: ", wildcardName)
+
+    #     return wildcardName in WILDCARD_NAME
+
+    # def is_multi_wildcard(self, node):
+    #     # wildcardName = node.id[:-1] 
+    #     # print("node.id wildcardName: ", wildcardName)
+
+    #     return node.id in MULTIWILDCARD_NAME
 
     def scan_file(self, file):
-        """Parse a file and yield AST nodes matching pattern.
+      """Parse a file and yield AST nodes matching pattern.
 
-        :param file: Path to a Python file, or a readable file object
-        """
-        if isinstance(file, str):
-            with open(file, 'rb') as f:
-                tree = ast.parse(f.read())
-        else:
-            tree = ast.parse(file.read())
-        yield from self.scan_ast(tree)
+      :param file: Path to a Python file, or a readable file object
+      """
+      if isinstance(file, str):
+        with open(file, 'rb') as f:
+          tree = ast.parse(f.read())
+      else:
+        tree = ast.parse(file.read())
+      yield from self.scan_ast(tree)
 
     def filter_subdirs(self, dirnames):
         dirnames[:] = [d for d in dirnames if d != 'build']
@@ -566,14 +569,8 @@ def defineWildcard(matchedWildcard):
     return WILDCARD_NAME + variable_num
 
 def replacingWildCardSigns(pattern):
-
-    print("====== before replace =======")
-    print(pattern)
     pattern = pattern.replace(MULTIWILDCARD_SIGN, MULTIWILDCARD_NAME)
     pattern = re.sub(r'[$]\d', defineWildcard, pattern)
-    # pattern = re.sub(r'[$]\d', WILDCARD_NAME, pattern)
-    print("====== after replace =======")
-    print(pattern)
     return pattern
 
 def prepareReplacingPattern(pattrenToReplace, moudleAlias):
@@ -596,9 +593,9 @@ def prepareReplacingPattern(pattrenToReplace, moudleAlias):
     CallLister().visit(pattrenToReplace)
     return pattrenToReplace
 
-
 def addAliasToPatterns(pattern, moudleAlias):
     return moudleAlias + "." + pattern;
+
 
 def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
     with open(filepath, 'rb') as f:
@@ -609,24 +606,33 @@ def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
     patternVars = {}
 
     ast_pattern1 = prepare_pattern(pattrenToSearch, patternVars, moudleAlias)
-    # pattrenToReplace = "sys.execute_info(??)"
-    # ast_pattern2 = prepare_pattern(pattrenToReplace)
-    print("pattern1: " + ast.dump(ast_pattern1))
+    # print("pattern1: " + ast.dump(ast_pattern1))
     pattrenToReplace = prepareReplacingPattern(pattrenToReplace, moudleAlias)
 
     patternfinder = ASTPatternFinder(ast_pattern1, patternVars)
 
 
-    print("=========== brefore ==========")
-    print(ast.dump(tree))
-    print("==============================")
+    # print("=========== brefore ==========")
+    # print(ast.dump(tree))
+    # print("==============================")
 
     
     patternfinder.scan_ast2(tree, pattrenToReplace)
 
+    # print("=========== after: ==========")
+    # print(ast.dump(tree))
+    # print("============================")
+
+    convertedCode = astor.to_source(tree)
+
+    saveConvertedCode(filepath, convertedCode)
     # for node in patternfinder.scan_ast(tree):
     #     print(ast.dump(node))
 
+def saveConvertedCode(filepath, convertedCode):
+  with open(filepath, 'w') as f:
+      f.write(convertedCode)
+      f.close()
 
 def findMoudleAlias(tree, givenMoudleName):
     class AliasFinder(ast.NodeVisitor):
@@ -660,6 +666,8 @@ def findMoudleAlias(tree, givenMoudleName):
     aliasFinderClass = ImportFinder(givenMoudleName)
     aliasFinderClass.visit(tree)
     return aliasFinderClass.get_found_alias()
+
+
 
 def main(argv=None):
     """Run astsearch from the command line.
@@ -711,11 +719,11 @@ def main(argv=None):
         # Search file
         if args.files_with_matches:
             try:
-                node = next(patternfinder.scan_file(args.path))
+              node = next(patternfinder.scan_file(args.path))
             except StopIteration:
-                pass
+              pass
             else:
-                print(args.path)
+              print(args.path)
         else:
             for node in patternfinder.scan_file(args.path):
                 if not current_filelines:

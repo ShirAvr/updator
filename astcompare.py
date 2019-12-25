@@ -72,7 +72,6 @@ class listmiddle(object):
         self.front = front or []
         self.back = back or []
         self._vars = _vars
-        print("in init: ", _vars == [])
 
     def __radd__(self, other):
         if not isinstance(other, list):
@@ -88,14 +87,8 @@ class listmiddle(object):
         if not isinstance(sample_list, list):
             raise ASTNodeTypeMismatch(path, sample_list, list)
 
-        print("???????? before")
-        print(self._vars)
         if isinstance(self._vars, list):
             self._vars.append(sample_list)
-        print("???????? after")
-        print(self._vars)
-
-        #print(ast.dump(sample_list[1]))
 
         if self.front:
             nfront = len(self.front)
@@ -167,6 +160,8 @@ def _check_node_list(path, sample, template, variables, start_enumerate=0):
         if callable(template_node):
             # Checker function inside a list
             template_node(sample_node, path+[i])
+        if is_wildcard(template_node.id):
+            treatWildcard(sample_node, variables, template_node.id)
         else:
             assert_ast_like(sample_node, template_node, variables, path+[i])
 
@@ -196,7 +191,7 @@ def assert_ast_like(sample, template, variables, _path=None):
                                      or callable(template_field[0])):
 
                 # if template_field[0].id is MULTIWILDCARD_NAME:
-                if is_wildcard(template_field[0].id):
+                if is_multi_wildcard(template_field[0].id):
                     treatWildcard(sample_field, variables, template_field[0].id)
                 else:
                     _check_node_list(field_path, sample_field, template_field, variables=variables)
@@ -206,6 +201,9 @@ def assert_ast_like(sample, template, variables, _path=None):
                     raise ASTPlainListMismatch(field_path, sample_field, template_field)
 
         elif isinstance(template_field, ast.AST):
+            if isinstance(template_field, ast.Name) and is_wildcard(template_field.id):
+                treatWildcard(sample_field, variables, template_field.id)
+
             assert_ast_like(sample_field, template_field, variables, field_path)
         
         elif callable(template_field):
@@ -221,11 +219,11 @@ def is_wildcard(wildcardName):
     wildcardName = wildcardName[:-1] 
     return wildcardName in [WILDCARD_NAME, MULTIWILDCARD_NAME]
 
+def is_multi_wildcard(wildcardName):
+    return wildcardName is MULTIWILDCARD_NAME
+
 def treatWildcard(nodesToSave, variables, wildcardName):
-    print("treatWildcard")
-    # variables.append(nodesToSave)
     variables[wildcardName] = nodesToSave
-    print(variables)
 
 def is_ast_like(sample, template, variables):
     """Returns True if the sample AST matches the template."""
