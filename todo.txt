@@ -11,10 +11,10 @@ TODO:
 	
 7. add test related to 1 - combined rules together..
 
-end - 1. Add the command line interface
-end. consider add a structre id to each rule - weather it's a function, attr... and so on
+end - 2. Add the command line interface
+end - 1. consider add a structre id to each rule - weather it's a function, attr... and so on
  cause for example - the pattern "moudleName.atrrName" should change somwhow the attrName, but if a function has the same name, it will catch also that.
-
+end. treat a case where the function is import above in a sentence of 'from lib import function'
 
 
 What's next? list with order

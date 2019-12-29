@@ -9,7 +9,7 @@ class DbInterface:
 		self.createIndex()
 
 	def dropRules(self):
-		self.rules.remove({})
+		self.rules.drop()
 
 	def createIndex(self):
 		self.rules.create_index([("moudle", pymongo.ASCENDING), ("patternToSearch", pymongo.ASCENDING)], unique=True)
@@ -21,6 +21,5 @@ class DbInterface:
 		self.rules.insert_many(rules)
 
 	def findRulesByMoudle(self, moudle):
-		print(moudle)
 		return self.rules.find({"moudle": moudle})
 

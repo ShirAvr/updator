@@ -1,11 +1,7 @@
 import ast
-import astcompare
-# from fs import ASTPatternConverter
-# import a
 from dbInterface import DbInterface
 from fsInterface import FsInterface
 from astPatternConverter import AstPatternConverter
-from astcompare import assert_ast_like
 import astor
 import os.path
 import sys
@@ -24,26 +20,16 @@ MULTIWILDCARD_NAME = "__updator_multiwildcard"
 MULTIWILDCARD_SIGN = "$all"
 
 def prepare_pattern(s, _vars=[], moudleAlias=""):
-    """Turn a string pattern into an AST pattern
+  s = addAliasToPatterns(s, moudleAlias)
+  s = replacingWildCardSigns(s)
 
-    This parses the string to an AST, and generalises it a bit for sensible
-    matching. ``?`` is treated as a wildcard that matches anything. Names in
-    the pattern will match names or attribute access (i.e. ``foo`` will match
-    ``bar.foo`` in files).
-    """
-    s = addAliasToPatterns(s, moudleAlias)
-    s = replacingWildCardSigns(s)
+  pattern = ast.parse(s).body[0]
+  if isinstance(pattern, ast.Expr):
+    pattern = pattern.value
+  if isinstance(pattern, (ast.Attribute, ast.Subscript)):
+    del pattern.ctx
 
-    pattern = ast.parse(s).body[0]
-    if isinstance(pattern, ast.Expr):
-        pattern = pattern.value
-    if isinstance(pattern, (ast.Attribute, ast.Subscript)):
-        # If the root of the pattern is like a.b or a[b], we want to match it
-        # regardless of context: `a.b=2` and `del a.b` should match as well as
-        # `c = a.b`
-        del pattern.ctx
-    # return TemplatePruner(_vars=_vars).visit(pattern)
-    return pattern
+  return pattern
 
 def defineWildcard(matchedWildcard):
   variable_num = matchedWildcard.group()[1]
@@ -54,17 +40,17 @@ def replacingWildCardSigns(pattern):
   pattern = re.sub(r'[$]\d', defineWildcard, pattern)
   return pattern
 
-def prepareReplacingPattern(pattrenToReplace, moudleAlias):
-  if pattrenToReplace is "":
+def prepareReplacingPattern(patternToReplace, moudleAlias):
+  if patternToReplace is "":
     return None
 
-  pattrenToReplace = replacingWildCardSigns(pattrenToReplace)
+  patternToReplace = replacingWildCardSigns(patternToReplace)
 
   # class AttrLister(ast.NodeVisitor):
-  #     def visit_Attribute(self, node):
-  #         global attrPattern
-  #         attrPattern = node
-  #         self.generic_visit(node)
+  #   def visit_Attribute(self, node):
+  #     global attrPattern
+  #     attrPattern = node
+  #     self.generic_visit(node)
 
   # class CallLister(ast.NodeVisitor):
   #     def visit_Call(self, node):
@@ -72,11 +58,12 @@ def prepareReplacingPattern(pattrenToReplace, moudleAlias):
   #         callPattern = node
   #         self.generic_visit(node)
 
-  pattrenToReplace = addAliasToPatterns(pattrenToReplace, moudleAlias)
-  pattrenToReplace = ast.parse(pattrenToReplace)
-  # CallLister().visit(pattrenToReplace)
-  return pattrenToReplace
+  patternToReplace = addAliasToPatterns(patternToReplace, moudleAlias)
+  patternToReplace = ast.parse(patternToReplace)
+  # AttrLister().visit(patternToReplace)
+  return patternToReplace
   # return callPattern
+  # return attrPattern
 
 def addAliasToPatterns(pattern, moudleAlias):
     return moudleAlias + "." + pattern;
@@ -114,67 +101,40 @@ def findMoudleAlias(tree, givenMoudleName):
   aliasFinderClass.visit(tree)
   return aliasFinderClass.get_found_alias()
 
-# execute = applyRule
-def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
-  filesInterface = FsInterface()
+def applyRule(patternToSearch, patternToReplace, moudle, tree):
+  patternVars = {}
 
-  sourceCode = filesInterface.readFileSourceCode(filepath)
+  patternToSearch = prepare_pattern(patternToSearch, patternVars, moudle)
+  patternToReplace = prepareReplacingPattern(patternToReplace, moudle)
+  patternConverter = AstPatternConverter(patternToSearch, patternToReplace, patternVars)
+
+  # print("patternToSearch: " + ast.dump(patternToSearch))
+  # print("patternToReplace: " + ast.dump(patternToReplace))
+
+  # print("=========== before ==========")
+  # print(ast.dump(tree))
+  # print("==============================")
+  
+  patternConverter.scan_ast(tree)
+  
+  # print("=========== after: ==========")
+  # print(ast.dump(tree))
+  # print("============================")
+
+def execute(patternToSearch, patternToReplace, filepath, moudle):
+  fsInterface = FsInterface()
+
+  sourceCode = fsInterface.readFileSourceCode(filepath)
   tree = ast.parse(sourceCode)
-  moudleAlias = findMoudleAlias(tree, givenMoudleName)
+  moudleAlias = findMoudleAlias(tree, moudle)
 
   if moudleAlias is None:
     return
 
-  patternVars = {}
-
-  pattrenToSearch = prepare_pattern(pattrenToSearch, patternVars, moudleAlias)
-  pattrenToReplace = prepareReplacingPattern(pattrenToReplace, moudleAlias)
-  patternConverter = AstPatternConverter(pattrenToSearch, pattrenToReplace, patternVars)
-
-  # print("pattrenToSearch: " + ast.dump(pattrenToSearch))
-
-  # print("=========== before ==========")
-  # print(ast.dump(tree))
-  # print("==============================")
-  
-  patternConverter.scan_ast(tree)
-  
-  # print("=========== after: ==========")
-  # print(ast.dump(tree))
-  # print("============================")
+  applyRule(patternToSearch, patternToReplace, moudleAlias, tree)
 
   convertedCode = astor.to_source(tree)
-  filesInterface.saveConvertedCode(filepath, convertedCode)
-
-# execute = applyRule
-def applyRule(rule, moudle, filepath):
-  # moudleName = rule.moudle
-  pattrenToSearch = rule.pattrenToSearch
-  pattrenToReplace = rule.pattrenToReplace
-
-  # if moudleAlias is None:
-  #   return
-
-  patternVars = {}
-
-  pattrenToSearch = prepare_pattern(pattrenToSearch, patternVars, moudle)
-  pattrenToReplace = prepareReplacingPattern(pattrenToReplace, moudle)
-  patternConverter = AstPatternConverter(pattrenToSearch, pattrenToReplace, patternVars)
-
-  # print("pattrenToSearch: " + ast.dump(pattrenToSearch))
-
-  # print("=========== before ==========")
-  # print(ast.dump(tree))
-  # print("==============================")
-  
-  patternConverter.scan_ast(tree)
-  
-  # print("=========== after: ==========")
-  # print(ast.dump(tree))
-  # print("============================")
-
-  convertedCode = astor.to_source(tree)
-  filesInterface.saveConvertedCode(filepath, convertedCode)
+  fsInterface.saveConvertedCode(filepath, convertedCode)
 
 def main(moudle, filepath, argv=None):
   fsInterface = FsInterface()
@@ -188,9 +148,14 @@ def main(moudle, filepath, argv=None):
     return
 
   rules = dbInterface.findRulesByMoudle(moudle)
-  for rule in rules:
-    print(rule)
 
+  for rule in rules:
+    patternToSearch = rule["patternToSearch"]
+    patternToReplace = rule["patternToReplace"]
+    applyRule(patternToSearch, patternToReplace, moudleAlias, tree)
+
+  convertedCode = astor.to_source(tree)
+  fsInterface.saveConvertedCode(filepath, convertedCode)
 
 if __name__ == '__main__':
   main()

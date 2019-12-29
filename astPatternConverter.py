@@ -1,5 +1,5 @@
-import astcompare, ast
-from astcompare import assert_ast_like
+import astcompare
+import ast
 import astor
 import os.path
 import sys

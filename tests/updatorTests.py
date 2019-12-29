@@ -2,29 +2,25 @@ import sys
 import unittest
 import textwrap
 from dbInterface import DbInterface
+from updator import main
 
 # sys.path.insert(1, '../updator')
-# from updator import execute, main
-import updator
+# import updator
 
 fileToConvert = "./tests/codeFileToConvert.py"
 
 class UpdatorTests(unittest.TestCase):
-  # def __init__(self, *args):
-    # self.dbInterface = MongodbInterface()
 
   def __init__(self, *args, **kwargs):
     super(UpdatorTests, self).__init__(*args, **kwargs)
     self.dbInterface = DbInterface()
-    self.dbInterface.dropRules()
 
   def setUp(self):
     print(self._testMethodName)
+    self.dbInterface.dropRules()
 
   def insertRules(self, rules):
     self.dbInterface.insertRules(rules)
-
-    # DbInterface().insertRules(rules)
 
   def createCodeFile(self, codeText):
     with open(fileToConvert, 'w') as f:
@@ -41,7 +37,12 @@ class UpdatorTests(unittest.TestCase):
   def dropWhitespace(self, str):
     return ''.join(str.split()) 
 
-  def test_one_rule_rename_function(self):
+  def setUpClass():
+    print("------------------------")
+    print("Updator end-to-end tests")
+    print("------------------------")
+
+  def test_apply_one_rule_change_params_positions(self):
     rules = [ {
         "moudle": "os",
         "patternToSearch": "remove()",
@@ -49,8 +50,53 @@ class UpdatorTests(unittest.TestCase):
       },
       {
         "moudle": "os",
-        "patternToSearch": "os.path",
-        "patternToReplace": "os.full_path"
+        "patternToSearch": "path",
+        "patternToReplace": "full_path"
+      },
+      {
+        "moudle": "math",
+        "patternToSearch": "pow($1, $2)",
+        "patternToReplace": "pow($2, $1)"
+      } 
+    ]
+
+    self.insertRules(rules)
+
+    sourceCode = '''
+      import math
+      import os
+      x = 2
+      y = 3
+      math.pow(x, y)
+      os.remove()
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      import os
+      x = 2
+      y = 3
+      math.pow(y, x)
+      os.remove()
+    '''
+
+    moudleName = "math"
+    self.createCodeFile(sourceCode)
+    main(moudleName, fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_apply_two_rules_rename_func_and_attr(self):
+    rules = [ {
+        "moudle": "os",
+        "patternToSearch": "remove()",
+        "patternToReplace": "delete()"
+      },
+      {
+        "moudle": "os",
+        "patternToSearch": "path",
+        "patternToReplace": "full_path"
       },
       {
         "moudle": "math",
@@ -63,20 +109,25 @@ class UpdatorTests(unittest.TestCase):
 
     sourceCode = '''
       import os
-      os.remove()        
+      os.remove()
+      a = 1 + 4
+      b = 2
+      print(os.path)
+      c = a + b
     '''
 
     expectedConvertedCode = '''
       import os
-      os.delete()        
+      os.delete()
+      a = 1 + 4
+      b = 2
+      print(os.full_path)
+      c = a + b
     '''
 
-    self.createCodeFile(sourceCode)
     moudleName = "os"
-
-    # execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
-    # actualConvertedCode = self.dropWhitespace(self.readCodeFile())
-    # expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
-    # self.assertTrue(actualConvertedCode == expectedConvertedCode)
-    updator.main(moudleName, fileToConvert)
-
+    self.createCodeFile(sourceCode)
+    main(moudleName, fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)

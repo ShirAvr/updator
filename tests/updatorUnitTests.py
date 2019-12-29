@@ -26,7 +26,6 @@ class UpdatorTests(unittest.TestCase):
   def dropWhitespace(self, str):
     return ''.join(str.split()) 
 
-
 class UpdatorGenericTests(UpdatorTests):
   def setUpClass():
     print("---------------------")
