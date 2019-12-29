@@ -20,28 +20,7 @@ fileToConvert = "./tests/codeFileToConvert.py"
 fileString = (open(fileName, 'rb')).read()
 tree = ast.parse(fileString)
 
-class AttrLister(ast.NodeVisitor):
-  def visit_Attribute(self, node):
-      global attrPattern
-      attrPattern = node
-      self.generic_visit(node)
-
-class CallLister(ast.NodeVisitor):
-  def __init__(self, ):
-    # super(UpdatorTests, self).__init__(*args, **kwargs)
-    super(CallLister, self).__init__()
-
-  def visit_Call(self, node):
-      global callPattern
-      callPattern = node
-      self.generic_visit(node)
-
-class RenameFunctionTests(unittest.TestCase):
-  def __init__(self, *args, **kwargs):
-    super(RenameFunctionTests, self).__init__(*args, **kwargs)
-    global codeMoudleName
-    self.codeMoudleName = codeMoudleName;
-
+class UpdatorTests(unittest.TestCase):
   def setUp(self):
     print(self._testMethodName)
 
@@ -58,10 +37,46 @@ class RenameFunctionTests(unittest.TestCase):
       return codeContent
 
   def dropWhitespace(self, str):
-    return ''.join(str.split())
+    return ''.join(str.split()) 
+
+
+class UpdatorGenericTests(UpdatorTests):
+  def setUpClass():
+    print("---------------------")
+    print("Updator genric tests")
+    print("---------------------")
+
+  def test_moudle_name_unused_in_source_code(self):
+    sourceCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(x, y)     
+    '''
+
+    expectedConvertedCode = sourceCode
+
+    self.createCodeFile(sourceCode)
+    moudleName = "sys"
+    pattrenToSearch = "pow()"
+    pattrenToReplace = "pow2()"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+# consider TODO: add a functionTests params where all tests related to function
+# signature will be related. RenameFunctionTests and ReplaceFuncParamsTests will
+# inherent from functionTests, and test as 'pattern should not be found' 
+# will be defined in the new class
+class ChangeFunctionSignatureTests(UpdatorTests):
+  def setUpClass():
+    print("-------------------------------")
+    print("Change function signature tests")
+    print("-------------------------------")
 
   def test_rename_function_without_params(self):
-    sourceCode = '''\
+    sourceCode = '''
       import sys as s
       s.exc_info()        
     '''
@@ -79,8 +94,8 @@ class RenameFunctionTests(unittest.TestCase):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  def test_with_destructure_each_function_params_to_wildcard(self):
-    sourceCode = '''\
+  def test_rename_function_destructure_each_function_params_to_wildcard(self):
+    sourceCode = '''
       import sys as s
       s.exc_info('shir', 'binyamin')        
     '''
@@ -98,8 +113,8 @@ class RenameFunctionTests(unittest.TestCase):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  def test_with_destructure_all_params_to_wildcard(self):
-    sourceCode = '''\
+  def test_rename_function_destructure_all_params_to_wildcard(self):
+    sourceCode = '''
       import sys as s
       s.exc_info('shir', 'binyamin')        
     '''
@@ -117,8 +132,8 @@ class RenameFunctionTests(unittest.TestCase):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  def test_change_between_params_order(self):
-    sourceCode = '''\
+  def test_rename_function_and_change_params_order(self):
+    sourceCode = '''
       import sys as s
       s.exc_info('shir', 'binyamin')        
     '''
@@ -136,39 +151,200 @@ class RenameFunctionTests(unittest.TestCase):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  # TODO: add cases of combined $n + $all
+  def test_pattern_to_search_should_not_be_found_case_pattern_without_params(self):
+    sourceCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(x, y)     
+    '''
 
-  # def test_convert_function_name(self):
-  #   pattrenToSearch = "exc_info($1, $2)"
-  #   pattrenToReplace = "execute_info($1, $2)"
-  #   execute(pattrenToSearch, pattrenToReplace, fileName, moudleName)
+    expectedConvertedCode = sourceCode
 
-  #   self.assertTrue(True)
+    self.createCodeFile(sourceCode)
+    moudleName = "math"
+    pattrenToSearch = "pow()"
+    pattrenToReplace = "pow()"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  # def test_convert_function_name(self):
-  #   pattrenToSearch = "exc_info($1, $2)"
-  #   pattrenToReplace = "execute_info($2, $1)"
-  #   execute(pattrenToSearch, pattrenToReplace, fileName, moudleName)
+  def test_pattern_to_search_should_not_be_found_case_pattern_with_too_many_params(self):
+    sourceCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(x, y)     
+    '''
 
-  #   self.assertTrue(True)
+    expectedConvertedCode = sourceCode
 
-  # def test_convert_function_name(self):
-  #   pattrenToSearch = "exc_info($all)"
-  #   pattrenToReplace = "execute_info($all)"
-  #   execute(pattrenToSearch, pattrenToReplace, fileName, moudleName)
+    self.createCodeFile(sourceCode)
+    moudleName = "math"
+    pattrenToSearch = "pow($1, $2, $3)"
+    pattrenToReplace = "pow()"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  #   self.assertTrue(True)
+  def test_pattern_to_search_should_not_be_found_case_pattern_has_not_enough_params(self):
+    sourceCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(x, y)     
+    '''
+
+    expectedConvertedCode = sourceCode
+
+    self.createCodeFile(sourceCode)
+    moudleName = "math"
+    pattrenToSearch = "pow($1)"
+    pattrenToReplace = "pow()"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+class ReplaceFuncParamsTests(UpdatorTests):
+  def setUpClass():
+    print("-----------------------------")
+    print("Replace function params tests")
+    print("-----------------------------")
+
+  def test_replace_params_positions_when_params_are_int_variables(self):
+    sourceCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(x, y)     
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(y, x)
+    '''
+
+    self.createCodeFile(sourceCode)
+    moudleName = "math"
+    pattrenToSearch = "pow($1, $2)"
+    pattrenToReplace = "pow($2, $1)"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_replace_params_positions_when_params_hard_coded_int(self):
+    sourceCode = '''
+      import math
+      math.pow(2, 3)     
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      math.pow(3, 2)
+    '''
+
+    self.createCodeFile(sourceCode)
+    moudleName = "math"
+    pattrenToSearch = "pow($1, $2)"
+    pattrenToReplace = "pow($2, $1)"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_replace_params_positions_when_params_hard_coded_strings(self):
+    sourceCode = '''
+      import stringTool as stool
+      stool.join('shir', 'binyamin')     
+    '''
+
+    expectedConvertedCode = '''
+      import stringTool as stool
+      stool.join('binyamin', 'shir')  
+    '''
+
+    self.createCodeFile(sourceCode)
+    moudleName = "stringTool"
+    pattrenToSearch = "join($1, $2)"
+    pattrenToReplace = "join($2, $1)"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
 
+#   # TODO: add cases of combined $n + $all
 
-  # def test_convert_function_name_with_one_arg(self):
-  #   self.assertTrue(True)
+class ChangeAttributeTests(UpdatorTests):
+  def setUpClass():
+    print("----------------------")
+    print("Change attribute tests")
+    print("----------------------")
 
-  # def test_convert_function_name_with_args(self):
-  #   self.assertTrue(True)
+  def test_rename_attr(self):
+    sourceCode = '''
+      import os
+      os.path
+    '''
 
-  # def test_convert_attribute_name(self):
-  #   self.assertTrue(True)
+    expectedConvertedCode = '''
+      import os
+      os.full_path
+    '''
 
+    self.createCodeFile(sourceCode)
+    moudleName = "os"
+    pattrenToSearch = "path"
+    pattrenToReplace = "full_path"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_rename_attr_with_continuity(self):
+    sourceCode = '''
+      import os
+      os.name.upper()
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.full_name.upper()
+    '''
+
+    self.createCodeFile(sourceCode)
+    moudleName = "os"
+    pattrenToSearch = "name"
+    pattrenToReplace = "full_name"
+    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  # not working!!!!
+  # def test_remove_attr(self):
+  #   sourceCode = '''
+  #     import os
+  #     os.path
+  #   '''
+
+  #   expectedConvertedCode = '''
+  #     import os
+  #   '''
+
+  #   self.createCodeFile(sourceCode)
+  #   moudleName = "os"
+  #   pattrenToSearch = "path"
+  #   pattrenToReplace = ""
+  #   execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+  #   actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+  #   expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+  #   self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
 

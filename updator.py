@@ -22,46 +22,14 @@ class ASTPatternFinder(object):
         self.pattern = pattern
         self.variables = patternVars
 
-    def scan_ast(self, tree):
+    def scan_ast(self, tree, patternToReplace):
         """Walk an AST and yield nodes matching pattern.
-
-        :param ast.AST tree: The AST in which to search
-        """
-        nodetype = type(self.pattern)
-        for node in ast.walk(tree):
-            if isinstance(node, nodetype) and astcompare.is_ast_like(node, self.pattern):
-                print("sdfsdfs")
-                yield node
-
-    def scan_ast1(self, tree, patternToReplace):
-        """Walk an AST and yield nodes matching pattern.
-
-        :param ast.AST tree: The AST in which to search
-        """
-        counter = 0
-        nodetype = type(self.pattern)
-        for node in ast.walk(tree):
-            counter = counter+1
-            print(counter)
-            if isinstance(node, nodetype) and astcompare.is_ast_like(node, self.pattern):
-                returnedNode = ast.copy_location(patternToReplace, node) 
-                print(ast.dump(returnedNode))
-                # node = patternToReplace
-                # node = None
-
-        print("=========== after ==========")
-        print(ast.dump(tree))
-        print("============================")
-
-    def scan_ast2(self, tree, patternToReplace):
-        """Walk an AST and yield nodes matching pattern.
-
         :param ast.AST tree: The AST in which to search
         """
         patternSelf = self
         pattern = self.pattern
         nodetype = type(pattern)
-        
+
         # print("patternToReplace: "+ ast.dump(patternToReplace))
 
         class convertTree(ast.NodeTransformer):
@@ -70,20 +38,24 @@ class ASTPatternFinder(object):
 
                 if isinstance(node, nodetype) and astcompare.is_ast_like(node, pattern, patternSelf.variables):
                     # print("found node: " + ast.dump(node))
-                    newNode = ASTPatternFinder.fillVariables(patternSelf, node, patternToReplace)
-                    newnode = ast.copy_location(newNode, node)
+                    if patternSelf.variables != {}:
+                      newNode = ASTPatternFinder.fillVariables(patternSelf, node, patternToReplace)
+                      newNode = ast.copy_location(newNode, node)
+                    else:
+                      newNode = patternToReplace
                     # newnode = ast.copy_location(patternToReplace, node)
-                    return newnode 
+                    return newNode 
                 else:
                     return node
 
-        tree2 = convertTree().visit(tree)
-
-
+        convertTree().visit(tree)
 
     def fillVariables(self, foundNode, patternToReplace):
         variables = self.variables
         patternSelf = self
+
+        if variables == {}:
+          return patternToReplace
 
         class retransformPattern(ast.NodeTransformer):
             def visit_Name(self, node):
@@ -574,24 +546,27 @@ def replacingWildCardSigns(pattern):
     return pattern
 
 def prepareReplacingPattern(pattrenToReplace, moudleAlias):
-    pattrenToReplace = replacingWildCardSigns(pattrenToReplace)
+  if pattrenToReplace is "":
+    return None
 
-    class AttrLister(ast.NodeVisitor):
-        def visit_Attribute(self, node):
-            global attrPattern
-            attrPattern = node
-            self.generic_visit(node)
+  pattrenToReplace = replacingWildCardSigns(pattrenToReplace)
 
-    class CallLister(ast.NodeVisitor):
-        def visit_Call(self, node):
-            global callPattern
-            callPattern = node
-            self.generic_visit(node)
+  class AttrLister(ast.NodeVisitor):
+      def visit_Attribute(self, node):
+          global attrPattern
+          attrPattern = node
+          self.generic_visit(node)
 
-    pattrenToReplace = addAliasToPatterns(pattrenToReplace, moudleAlias)
-    pattrenToReplace = ast.parse(pattrenToReplace)
-    CallLister().visit(pattrenToReplace)
-    return pattrenToReplace
+  class CallLister(ast.NodeVisitor):
+      def visit_Call(self, node):
+          global callPattern
+          callPattern = node
+          self.generic_visit(node)
+
+  pattrenToReplace = addAliasToPatterns(pattrenToReplace, moudleAlias)
+  pattrenToReplace = ast.parse(pattrenToReplace)
+  CallLister().visit(pattrenToReplace)
+  return pattrenToReplace
 
 def addAliasToPatterns(pattern, moudleAlias):
     return moudleAlias + "." + pattern;
@@ -603,6 +578,9 @@ def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
 
     moudleAlias = findMoudleAlias(tree, givenMoudleName)
 
+    if moudleAlias is None:
+      return
+
     patternVars = {}
 
     ast_pattern1 = prepare_pattern(pattrenToSearch, patternVars, moudleAlias)
@@ -612,12 +590,12 @@ def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
     patternfinder = ASTPatternFinder(ast_pattern1, patternVars)
 
 
-    # print("=========== brefore ==========")
+    # print("=========== before ==========")
     # print(ast.dump(tree))
     # print("==============================")
 
     
-    patternfinder.scan_ast2(tree, pattrenToReplace)
+    patternfinder.scan_ast(tree, pattrenToReplace)
 
     # print("=========== after: ==========")
     # print(ast.dump(tree))

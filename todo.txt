@@ -1,5 +1,12 @@
 TODO:
 
-1. unparse ast after transformation
-2. assert between files + return the new code? (for assertion?)
-3. change ast.Name == v1 to an variable special object.. that dynamiclly changed as he does with the wildcard
+1. Add a file that will be contained all rules for each moudle. and when executing updator, updator will read the related moudle's rules and execute each one of the them.
+2. Check david case's - pattern appres in pattern... and so on.
+3. Seperate to appropriate moudles and classes.
+4. Remove unnecessary code
+
+5. Add the command line interface
+6. consider add a structre id to each rule - weather it's a function, attr... and so on
+ cause for example - the pattern "moudleName.atrrName" should change somwhow the attrName, but if a function has the same name, it will catch also that.
+
+7.
