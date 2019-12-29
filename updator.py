@@ -38,15 +38,17 @@ class ASTPatternFinder(object):
 
                 if isinstance(node, nodetype) and astcompare.is_ast_like(node, pattern, patternSelf.variables):
                     # print("found node: " + ast.dump(node))
-                    if patternSelf.variables != {}:
+                    if patternToReplace is not None and patternSelf.variables != {}:
                       newNode = ASTPatternFinder.fillVariables(patternSelf, node, patternToReplace)
-                      newNode = ast.copy_location(newNode, node)
+                      newNode = ast.copy_location(newNode, node) # not sure it's needed
                     else:
                       newNode = patternToReplace
-                    # newnode = ast.copy_location(patternToReplace, node)
-                    return newNode 
+
+                    return newNode
+                elif patternSelf.isInvalidNode(node):
+                  return None
                 else:
-                    return node
+                  return node
 
         convertTree().visit(tree)
 
@@ -122,6 +124,17 @@ class ASTPatternFinder(object):
                             yield filepath, match
                     except SyntaxError as e:
                         warnings.warn("Failed to parse {}:\n{}".format(filepath, e))
+
+    def isInvalidNode(self, node):
+      return isinstance(node, ast.Expr) and self.isInvalidExpr(node)
+
+    def isInvalidExpr(self, expNode):
+      try:
+        expNode.value
+      except:
+        return True
+
+      return False
 
 def must_exist_checker(node, path, _vars=[]):
     """Checker function to ensure a field is not empty"""
@@ -596,6 +609,7 @@ def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
 
     
     patternfinder.scan_ast(tree, pattrenToReplace)
+    # patternfinder.fix_tree(tree)
 
     # print("=========== after: ==========")
     # print(ast.dump(tree))

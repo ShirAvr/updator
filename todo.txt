@@ -1,12 +1,14 @@
 TODO:
 
 1. Add a file that will be contained all rules for each moudle. and when executing updator, updator will read the related moudle's rules and execute each one of the them.
+ or - use mongodb instead of a file!
 2. Check david case's - pattern appres in pattern... and so on.
 3. Seperate to appropriate moudles and classes.
 4. Remove unnecessary code
+5. Fix remove node feature
 
-5. Add the command line interface
-6. consider add a structre id to each rule - weather it's a function, attr... and so on
+
+end - 1. Add the command line interface
+end. consider add a structre id to each rule - weather it's a function, attr... and so on
  cause for example - the pattern "moudleName.atrrName" should change somwhow the attrName, but if a function has the same name, it will catch also that.
 
-7.
