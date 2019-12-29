@@ -4,9 +4,6 @@ import textwrap
 from dbInterface import DbInterface
 from updator import main
 
-# sys.path.insert(1, '../updator')
-# import updator
-
 fileToConvert = "./tests/codeFileToConvert.py"
 
 class UpdatorTests(unittest.TestCase):

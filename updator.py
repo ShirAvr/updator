@@ -101,7 +101,9 @@ def findMoudleAlias(tree, givenMoudleName):
   aliasFinderClass.visit(tree)
   return aliasFinderClass.get_found_alias()
 
-def applyRule(patternToSearch, patternToReplace, moudle, tree):
+def applyRule(rule, moudle, tree):
+  patternToSearch = rule["patternToSearch"]
+  patternToReplace = rule["patternToReplace"]
   patternVars = {}
 
   patternToSearch = prepare_pattern(patternToSearch, patternVars, moudle)
@@ -121,21 +123,6 @@ def applyRule(patternToSearch, patternToReplace, moudle, tree):
   # print(ast.dump(tree))
   # print("============================")
 
-def execute(patternToSearch, patternToReplace, filepath, moudle):
-  fsInterface = FsInterface()
-
-  sourceCode = fsInterface.readFileSourceCode(filepath)
-  tree = ast.parse(sourceCode)
-  moudleAlias = findMoudleAlias(tree, moudle)
-
-  if moudleAlias is None:
-    return
-
-  applyRule(patternToSearch, patternToReplace, moudleAlias, tree)
-
-  convertedCode = astor.to_source(tree)
-  fsInterface.saveConvertedCode(filepath, convertedCode)
-
 def main(moudle, filepath, argv=None):
   fsInterface = FsInterface()
   dbInterface = DbInterface()
@@ -150,9 +137,7 @@ def main(moudle, filepath, argv=None):
   rules = dbInterface.findRulesByMoudle(moudle)
 
   for rule in rules:
-    patternToSearch = rule["patternToSearch"]
-    patternToReplace = rule["patternToReplace"]
-    applyRule(patternToSearch, patternToReplace, moudleAlias, tree)
+    applyRule(rule, moudleAlias, tree)
 
   convertedCode = astor.to_source(tree)
   fsInterface.saveConvertedCode(filepath, convertedCode)

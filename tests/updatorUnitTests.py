@@ -1,15 +1,22 @@
 import sys
 import unittest
 import textwrap
-
-# sys.path.insert(1, '../updator')
-from updator import execute
+from dbInterface import DbInterface
+from updator import main
 
 fileToConvert = "./tests/codeFileToConvert.py"
 
 class UpdatorTests(unittest.TestCase):
+  def __init__(self, *args, **kwargs):
+    super(UpdatorTests, self).__init__(*args, **kwargs)
+    self.dbInterface = DbInterface()
+
   def setUp(self):
     print(self._testMethodName)
+    self.dbInterface.dropRules()
+
+  def insertRule(self, rule):
+    self.dbInterface.insertRule(rule)
 
   def createCodeFile(self, codeText):
     with open(fileToConvert, 'w') as f:
@@ -42,11 +49,14 @@ class UpdatorGenericTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
+    rule = { "moudle": "math", 
+             "patternToSearch": "pow($all)", 
+             "patternToReplace": "pow2($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
     moudleName = "sys"
-    pattrenToSearch = "pow($all)"
-    pattrenToReplace = "pow2($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main(moudleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -66,11 +76,14 @@ class UpdatorGenericTests(UpdatorTests):
       m.pow2(x, y)     
     '''
 
+    rule = { "moudle": "math", 
+             "patternToSearch": "pow($all)", 
+             "patternToReplace": "pow2($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
     moudleName = "math"
-    pattrenToSearch = "pow($all)"
-    pattrenToReplace = "pow2($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main(moudleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -96,11 +109,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete()        
     '''
 
+    rule = { "moudle": "os", 
+             "patternToSearch": "remove()", 
+             "patternToReplace": "delete()" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove()"
-    pattrenToReplace = "delete()"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -116,11 +131,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete('shir', 'binyamin')        
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($1, $2)", 
+         "patternToReplace": "delete($1, $2)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($1, $2)"
-    pattrenToReplace = "delete($1, $2)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -136,11 +153,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       s.delete('shir', 'binyamin')        
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = "delete($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -156,11 +175,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       s.delete('binyamin', 'shir')        
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($1, $2)", 
+         "patternToReplace": "delete($2, $1)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($1, $2)"
-    pattrenToReplace = "delete($2, $1)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -177,11 +198,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       a = 1 + 2
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove()", 
+         "patternToReplace": "" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove()"
-    pattrenToReplace = ""
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -198,11 +221,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       b = 1
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = ""
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -217,11 +242,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
+    rule = { "moudle": "math", 
+         "patternToSearch": "pow()", 
+         "patternToReplace": "pow2()" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "math"
-    pattrenToSearch = "pow()"
-    pattrenToReplace = "pow()"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -236,11 +263,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
+    rule = { "moudle": "math", 
+         "patternToSearch": "pow($1, $2, $3)", 
+         "patternToReplace": "pow2()" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "math"
-    pattrenToSearch = "pow($1, $2, $3)"
-    pattrenToReplace = "pow()"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -255,11 +284,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
+    rule = { "moudle": "math", 
+         "patternToSearch": "pow($1)", 
+         "patternToReplace": "pow2()" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "math"
-    pattrenToSearch = "pow($1)"
-    pattrenToReplace = "pow()"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -275,11 +306,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete()
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = "delete($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -295,11 +328,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete(os.delete())
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = "delete($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -315,11 +350,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete(os.delete('shir', 'binyamin'))
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = "delete($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -335,11 +372,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete(2, os.delete('shir'), 1)
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = "delete($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -355,11 +394,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete(os.delete('bin'), os.delete('shir'), 1)
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = "delete($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -375,11 +416,13 @@ class ChangeFunctionSignatureTests(UpdatorTests):
       os.delete(os.delete(os.delete('shir', 1), 2), 3)
     '''
 
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "remove($all)"
-    pattrenToReplace = "delete($all)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -405,11 +448,13 @@ class ReplaceFuncParamsTests(UpdatorTests):
       math.pow(y, x)
     '''
 
+    rule = { "moudle": "math", 
+             "patternToSearch": "pow($1, $2)", 
+             "patternToReplace": "pow($2, $1)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "math"
-    pattrenToSearch = "pow($1, $2)"
-    pattrenToReplace = "pow($2, $1)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -425,11 +470,13 @@ class ReplaceFuncParamsTests(UpdatorTests):
       math.pow(3, 2)
     '''
 
+    rule = { "moudle": "math", 
+             "patternToSearch": "pow($1, $2)", 
+             "patternToReplace": "pow($2, $1)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "math"
-    pattrenToSearch = "pow($1, $2)"
-    pattrenToReplace = "pow($2, $1)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -445,11 +492,13 @@ class ReplaceFuncParamsTests(UpdatorTests):
       stool.join('binyamin', 'shir')  
     '''
 
+    rule = { "moudle": "stringTool", 
+             "patternToSearch": "join($1, $2)", 
+             "patternToReplace": "join($2, $1)" }
+             
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "stringTool"
-    pattrenToSearch = "join($1, $2)"
-    pattrenToReplace = "join($2, $1)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("stringTool", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -469,11 +518,13 @@ class ReplaceFuncParamsTests(UpdatorTests):
       math.pow(y, math.pow(5, 4))
     '''
 
+    rule = { "moudle": "math", 
+             "patternToSearch": "pow($1, $2)", 
+             "patternToReplace": "pow($2, $1)" }
+
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "math"
-    pattrenToSearch = "pow($1, $2)"
-    pattrenToReplace = "pow($2, $1)"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -495,11 +546,10 @@ class ChangeAttributeTests(UpdatorTests):
       os.full_path
     '''
 
+    rule = { "moudle": "os", "patternToSearch": "path", "patternToReplace": "full_path" }
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "path"
-    pattrenToReplace = "full_path"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -515,11 +565,10 @@ class ChangeAttributeTests(UpdatorTests):
       os.full_name.upper()
     '''
 
+    rule = { "moudle": "os", "patternToSearch": "name", "patternToReplace": "full_name" }
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "name"
-    pattrenToReplace = "full_name"
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -534,11 +583,10 @@ class ChangeAttributeTests(UpdatorTests):
       import os
     '''
 
+    rule = { "moudle": "os", "patternToSearch": "path", "patternToReplace": "" }
+    self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "os"
-    pattrenToSearch = "path"
-    pattrenToReplace = ""
-    execute(pattrenToSearch, pattrenToReplace, fileToConvert, moudleName)
+    main("os", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)

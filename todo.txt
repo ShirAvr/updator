@@ -1,28 +1,24 @@
 TODO:
 
 1. Add a file that will be contained all rules for each moudle. and when executing updator, updator will read the related moudle's rules and execute each one of the them.
- or - use mongodb instead of a file!
-2. Check david case's - pattern appres in pattern... and so on.
-3. Seperate to appropriate moudles and classes.
-4. Remove unnecessary code
-5. Fix remove node feature
-6. add more cases to check - as combined use of $n + $all...
+ or - use mongodb instead of a file! 🤗
+2. Check david case's - pattern appres in pattern... and so on. 🤗
+3. Seperate to appropriate moudles and classes. 🤗
+4. Remove unnecessary code - not complete 🙄
+5. Fix remove node feature  🤗
+6. add more cases to check - as combined use of $n + $all... 🙄
 	and cases we wrote on the notebook... as remove params.. and so on
 	
-7. add test related to 1 - combined rules together..
+7. add test related to 1 - combined rules together.. 🤗
 
-end - 2. Add the command line interface
+end - 2. Add the command line interface 🙄
 end - 1. consider add a structre id to each rule - weather it's a function, attr... and so on
  cause for example - the pattern "moudleName.atrrName" should change somwhow the attrName, but if a function has the same name, it will catch also that.
 end. treat a case where the function is import above in a sentence of 'from lib import function'
 
 
 What's next? list with order
-1. Check david case's - pattern appres in pattern... and so on.
-2. Seperate to appropriate moudles and classes.
-3. Remove unnecessary code
-4. Add a file that will be contained all rules for each moudle. and when executing updator, updator will read the related moudle's rules and execute each one of the them.
-or - use mongodb instead of a file!
-
-5. add more cases to check - as combined use of $n + $all...
+1. Remove unnecessary code from astcompare
+2. clean code
+3. add more cases to check - as combined use of $n + $all...
 	and cases we wrote on the notebook... as remove params.. and so on
