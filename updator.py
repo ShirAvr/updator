@@ -6,12 +6,10 @@ import sys
 import tokenize
 import warnings
 import re
+import copy
 from functools import partial
 
-__version__ = '0.1.3'
-# global variables
-# variables = [ast.Name(id="queen")]
-# variables = []
+__version__ = '0.1'
 
 class ASTPatternFinder(object):
     """Scans Python code for AST nodes matching pattern.
@@ -43,6 +41,8 @@ class ASTPatternFinder(object):
                       newNode = ast.copy_location(newNode, node) # not sure it's needed
                     else:
                       newNode = patternToReplace
+                      
+                    # print("new node: " + ast.dump(newNode))
 
                     return newNode
                 elif patternSelf.isInvalidNode(node):
@@ -65,12 +65,13 @@ class ASTPatternFinder(object):
 
                 # and isinstance(variables, list) and variables != []
                 if patternSelf.is_wildcard(node):
-                    # newNode = ast.copy_location(ast.List(variables[0]), node)
-                    # newNode = (variables[0]), node)
+                    # print("variables[node.id]")
+                    # print(variables[node.id])
                     return variables[node.id]
                 else:
                     return node
 
+        patternToReplace = copy.deepcopy(patternToReplace)
         return retransformPattern().visit(patternToReplace)
 
     def is_wildcard(self, node):
@@ -580,10 +581,10 @@ def prepareReplacingPattern(pattrenToReplace, moudleAlias):
   pattrenToReplace = ast.parse(pattrenToReplace)
   CallLister().visit(pattrenToReplace)
   return pattrenToReplace
+  # return callPattern
 
 def addAliasToPatterns(pattern, moudleAlias):
     return moudleAlias + "." + pattern;
-
 
 def execute(pattrenToSearch, pattrenToReplace, filepath, givenMoudleName):
     with open(filepath, 'rb') as f:
