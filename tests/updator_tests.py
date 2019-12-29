@@ -544,4 +544,3 @@ class ChangeAttributeTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-
