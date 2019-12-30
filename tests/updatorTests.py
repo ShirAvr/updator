@@ -1,8 +1,8 @@
 import sys
 import unittest
 import textwrap
-from dbInterface import DbInterface
-from updator import main
+from src.dbInterface import DbInterface
+from src.updator import main
 
 fileToConvert = "./tests/codeFileToConvert.py"
 

@@ -2,4 +2,5 @@
 /dist/
 MANIFEST
 *.pyc
-/doc/_build
+# /src/__pycache__/
+# /tests/__pycache__/

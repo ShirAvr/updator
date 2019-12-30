@@ -1,7 +1,7 @@
 import ast
-from dbInterface import DbInterface
-from fsInterface import FsInterface
-from astPatternConverter import AstPatternConverter
+from src.dbInterface import DbInterface
+from src.fsInterface import FsInterface
+from src.astPatternConverter import AstPatternConverter
 import astor
 import os.path
 import sys

@@ -20,5 +20,6 @@ end. treat a case where the function is import above in a sentence of 'from lib 
 What's next? list with order
 1. Remove unnecessary code from astcompare
 2. clean code
+4. move all code src to src dir
 3. add more cases to check - as combined use of $n + $all...
 	and cases we wrote on the notebook... as remove params.. and so on

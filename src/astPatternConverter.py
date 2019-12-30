@@ -1,4 +1,4 @@
-import astcompare
+from src.astcompare import is_ast_like 
 import ast
 import astor
 import os.path
@@ -34,7 +34,7 @@ class AstPatternConverter(object):
             def visit(self, node):
                 ast.NodeVisitor.visit(self, node)
 
-                if isinstance(node, nodetype) and astcompare.is_ast_like(node, pattrenToSearch, patternSelf.variables):
+                if isinstance(node, nodetype) and is_ast_like(node, pattrenToSearch, patternSelf.variables):
                     # print("found node: " + ast.dump(node))
                     if patternToReplace is not None and patternSelf.variables != {}:
                       newNode = AstPatternConverter.fillVariables(patternSelf, node, patternToReplace)
