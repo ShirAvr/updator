@@ -7,7 +7,6 @@ from src.updator import main
 fileToConvert = "./tests/codeFileToConvert.py"
 
 class UpdatorTests(unittest.TestCase):
-
   def __init__(self, *args, **kwargs):
     super(UpdatorTests, self).__init__(*args, **kwargs)
     self.dbInterface = DbInterface()

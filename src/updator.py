@@ -5,11 +5,8 @@ from src.astPatternConverter import AstPatternConverter
 import astor
 import os.path
 import sys
-import tokenize
-import warnings
 import re
 import copy
-from functools import partial
 
 __version__ = '0.1'
 
@@ -61,35 +58,34 @@ def prepareReplacingPattern(patternToReplace, moudleAlias):
   patternToReplace = addAliasToPatterns(patternToReplace, moudleAlias)
   patternToReplace = ast.parse(patternToReplace)
   # AttrLister().visit(patternToReplace)
-  return patternToReplace
   # return callPattern
-  # return attrPattern
+  return patternToReplace
 
 def addAliasToPatterns(pattern, moudleAlias):
-    return moudleAlias + "." + pattern;
+  return moudleAlias + "." + pattern;
 
-def findMoudleAlias(tree, givenMoudleName):
+def findMoudleAlias(tree, moudleName):
   class AliasFinder(ast.NodeVisitor):
 
-    def __init__(self, givenMoudleName):
+    def __init__(self, moudleName):
       super(AliasFinder, self).__init__()
-      self.givenMoudleName = givenMoudleName;
+      self.moudleName = moudleName;
       self.aliasMoudleName = None;
 
     def visit_alias(self, node):
-        if (node.name is self.givenMoudleName and node.asname is not None):
+        if (node.name is self.moudleName and node.asname is not None):
           self.aliasMoudleName = node.asname
-        elif (node.name is self.givenMoudleName and node.asname is None):
+        elif (node.name is self.moudleName and node.asname is None):
           self.aliasMoudleName = node.name
 
     def get_found_alias(self):
       return self.aliasMoudleName
 
   class ImportFinder(ast.NodeVisitor):
-    def __init__(self, givenMoudleName):
+    def __init__(self, moudleName):
       super(ImportFinder, self).__init__()
-      self.givenMoudleName = givenMoudleName;
-      self.aliasFinderClass = AliasFinder(self.givenMoudleName)
+      self.moudleName = moudleName;
+      self.aliasFinderClass = AliasFinder(self.moudleName)
 
     def visit_Import(self, node):
       self.aliasFinderClass.visit(node)
@@ -97,7 +93,7 @@ def findMoudleAlias(tree, givenMoudleName):
     def get_found_alias(self):
       return self.aliasFinderClass.get_found_alias()
 
-  aliasFinderClass = ImportFinder(givenMoudleName)
+  aliasFinderClass = ImportFinder(moudleName)
   aliasFinderClass.visit(tree)
   return aliasFinderClass.get_found_alias()
 

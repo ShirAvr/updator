@@ -16,10 +16,13 @@ end - 1. consider add a structre id to each rule - weather it's a function, attr
  cause for example - the pattern "moudleName.atrrName" should change somwhow the attrName, but if a function has the same name, it will catch also that.
 end. treat a case where the function is import above in a sentence of 'from lib import function'
 
-
 What's next? list with order
-1. Remove unnecessary code from astcompare
-2. clean code
-4. move all code src to src dir
-3. add more cases to check - as combined use of $n + $all...
-	and cases we wrote on the notebook... as remove params.. and so on
+1. Remove unnecessary code from astcompare 🤗
+2. Clean code 🤗
+3. Move all code src to src dir 🤗
+4. Fix preparing pattern functionallty... move to astPattern perhaps?
+5. Fix global params defintions in all files in appropiate way,
+	 consider creating a const / config file
+6. Add more cases to check - as combined use of $n + $all...
+	 and cases we wrote on the notebook... as remove params.. and so on
+

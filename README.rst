@@ -1,4 +1,4 @@
 Updator
 -------
 
-always be up-to-date!
+Always be up-to-date!
