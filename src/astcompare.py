@@ -1,8 +1,7 @@
 """Check Python ASTs against templates"""
 import ast
+import src.astPatternBuilder as patternBuilder
 
-WILDCARD_NAME = "__updator_wildcard"
-MULTIWILDCARD_NAME = "__updator_multiwildcard"
 
 def check_node_list(sample, template, variables, start_enumerate=0):
   """Check a list of nodes, e.g. function body"""
@@ -10,7 +9,7 @@ def check_node_list(sample, template, variables, start_enumerate=0):
     raise ASTMismatch(sample, template)
 
   for i, (sample_node, template_node) in enumerate(zip(sample, template), start=start_enumerate):
-    if is_wildcard(template_node.id):
+    if is_single_wildcard(template_node.id):
       treatWildcard(sample_node, variables, template_node.id)
     else:
       assert_ast_like(sample_node, template_node, variables)
@@ -41,7 +40,7 @@ def assert_ast_like(sample, template, variables):
           raise ASTMismatch(sample_field, template_field)
 
     elif isinstance(template_field, ast.AST):
-      if isinstance(template_field, ast.Name) and is_wildcard(template_field.id):
+      if isinstance(template_field, ast.Name) and is_single_wildcard(template_field.id):
         treatWildcard(sample_field, variables, template_field.id)
 
       assert_ast_like(sample_field, template_field, variables)
@@ -51,21 +50,12 @@ def assert_ast_like(sample, template, variables):
       if sample_field != template_field:
           raise ASTMismatch(sample_field, template_field)
 
-class ASTMismatch(AssertionError):
-  """Exception for differing ASTs."""
-  def __init__(self, got, expected):
-    self.got = got
-    self.expected = expected
+def is_single_wildcard(templateNode):
+  return patternBuilder.is_single_wildcard(templateNode)
 
-  def __str__(self):
-    return ("Mismatch - sample: " + self.got + ", template: " + self.expected)
-
-def is_wildcard(wildcardName):
-  wildcardName = wildcardName[:-1] 
-  return wildcardName in [WILDCARD_NAME, MULTIWILDCARD_NAME]
-
-def is_multi_wildcard(wildcardName):
-  return wildcardName is MULTIWILDCARD_NAME
+def is_multi_wildcard(templateNode):
+  return patternBuilder.is_multi_wildcard(templateNode)
+  # return wildcardName is MULTIWILDCARD_NAME
 
 def treatWildcard(nodesToSave, variables, wildcardName):
   variables[wildcardName] = nodesToSave
@@ -77,3 +67,13 @@ def is_ast_like(sample, template, variables):
     return True
   except ASTMismatch:
     return False
+
+class ASTMismatch(AssertionError):
+  """Exception for differing ASTs."""
+  def __init__(self, got, expected):
+    self.got = got
+    self.expected = expected
+
+  def __str__(self):
+    return ("Mismatch - sample: " + self.got + ", template: " + self.expected)
+

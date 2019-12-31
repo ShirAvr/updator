@@ -1,68 +1,12 @@
 import ast
+import astor
+import os.path
+import src.astPatternBuilder as patternBuilder
 from src.dbInterface import DbInterface
 from src.fsInterface import FsInterface
 from src.astPatternConverter import AstPatternConverter
-import astor
-import os.path
-import sys
-import re
-import copy
 
 __version__ = '0.1'
-
-WILDCARD_NAME = "__updator_wildcard"
-MULTIWILDCARD_NAME = "__updator_multiwildcard"
-
-# WILDCARD_SIGN = "$"
-MULTIWILDCARD_SIGN = "$all"
-
-def prepare_pattern(s, _vars=[], moudleAlias=""):
-  s = addAliasToPatterns(s, moudleAlias)
-  s = replacingWildCardSigns(s)
-
-  pattern = ast.parse(s).body[0]
-  if isinstance(pattern, ast.Expr):
-    pattern = pattern.value
-  if isinstance(pattern, (ast.Attribute, ast.Subscript)):
-    del pattern.ctx
-
-  return pattern
-
-def defineWildcard(matchedWildcard):
-  variable_num = matchedWildcard.group()[1]
-  return WILDCARD_NAME + variable_num
-
-def replacingWildCardSigns(pattern):
-  pattern = pattern.replace(MULTIWILDCARD_SIGN, MULTIWILDCARD_NAME)
-  pattern = re.sub(r'[$]\d', defineWildcard, pattern)
-  return pattern
-
-def prepareReplacingPattern(patternToReplace, moudleAlias):
-  if patternToReplace is "":
-    return None
-
-  patternToReplace = replacingWildCardSigns(patternToReplace)
-
-  # class AttrLister(ast.NodeVisitor):
-  #   def visit_Attribute(self, node):
-  #     global attrPattern
-  #     attrPattern = node
-  #     self.generic_visit(node)
-
-  # class CallLister(ast.NodeVisitor):
-  #     def visit_Call(self, node):
-  #         global callPattern
-  #         callPattern = node
-  #         self.generic_visit(node)
-
-  patternToReplace = addAliasToPatterns(patternToReplace, moudleAlias)
-  patternToReplace = ast.parse(patternToReplace)
-  # AttrLister().visit(patternToReplace)
-  # return callPattern
-  return patternToReplace
-
-def addAliasToPatterns(pattern, moudleAlias):
-  return moudleAlias + "." + pattern;
 
 def findMoudleAlias(tree, moudleName):
   class AliasFinder(ast.NodeVisitor):
@@ -102,8 +46,9 @@ def applyRule(rule, moudle, tree):
   patternToReplace = rule["patternToReplace"]
   patternVars = {}
 
-  patternToSearch = prepare_pattern(patternToSearch, patternVars, moudle)
-  patternToReplace = prepareReplacingPattern(patternToReplace, moudle)
+  patternToSearch = patternBuilder.preparePattern(patternToSearch, moudle)
+  patternToReplace = patternBuilder.preparePattern(patternToReplace, moudle)
+
   patternConverter = AstPatternConverter(patternToSearch, patternToReplace, patternVars)
 
   # print("patternToSearch: " + ast.dump(patternToSearch))

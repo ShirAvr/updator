@@ -20,9 +20,15 @@ What's next? list with order
 1. Remove unnecessary code from astcompare 🤗
 2. Clean code 🤗
 3. Move all code src to src dir 🤗
+
 4. Fix preparing pattern functionallty... move to astPattern perhaps?
+	 consider create moudle of preparing patterns 🤗
+
 5. Fix global params defintions in all files in appropiate way,
-	 consider creating a const / config file
+	 consider creating a const / config file 🤗
+
+6. Fix comments and add new ones 🙄
+
 6. Add more cases to check - as combined use of $n + $all...
 	 and cases we wrote on the notebook... as remove params.. and so on
 
