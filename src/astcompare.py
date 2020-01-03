@@ -55,7 +55,6 @@ def is_single_wildcard(templateNode):
 
 def is_multi_wildcard(templateNode):
   return patternBuilder.is_multi_wildcard(templateNode)
-  # return wildcardName is MULTIWILDCARD_NAME
 
 def treatWildcard(nodesToSave, variables, wildcardName):
   variables[wildcardName] = nodesToSave

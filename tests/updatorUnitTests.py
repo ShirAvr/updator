@@ -88,14 +88,10 @@ class UpdatorGenericTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-# # consider TODO: add a functionTests params where all tests related to function
-# # signature will be related. RenameFunctionTests and ReplaceFuncParamsTests will
-# # inherent from functionTests, and test as 'pattern should not be found' 
-# # will be defined in the new class
-class ChangeFunctionSignatureTests(UpdatorTests):
+class RenameFunctionTests(UpdatorTests):
   def setUpClass():
     print("-------------------------------")
-    print("Change function signature tests")
+    print("Rename function tests")
     print("-------------------------------")
 
   def test_rename_function_without_params(self):
@@ -178,52 +174,6 @@ class ChangeFunctionSignatureTests(UpdatorTests):
     rule = { "moudle": "os", 
          "patternToSearch": "remove($1, $2)", 
          "patternToReplace": "delete($2, $1)" }
-             
-    self.insertRule(rule)
-    self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
-    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
-    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
-    self.assertTrue(actualConvertedCode == expectedConvertedCode)
-
-  def test_remove_function_without_params(self):
-    sourceCode = '''
-      import os as s
-      s.remove()
-      a = 1 + 2
-    '''
-
-    expectedConvertedCode = '''
-      import os as s
-      a = 1 + 2
-    '''
-
-    rule = { "moudle": "os", 
-         "patternToSearch": "remove()", 
-         "patternToReplace": "" }
-             
-    self.insertRule(rule)
-    self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
-    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
-    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
-    self.assertTrue(actualConvertedCode == expectedConvertedCode)
-
-  def test_remove_function_with_params(self):
-    sourceCode = '''
-      import os
-      os.remove("shir")
-      b = 1     
-    '''
-
-    expectedConvertedCode = '''
-      import os
-      b = 1
-    '''
-
-    rule = { "moudle": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -419,6 +369,174 @@ class ChangeFunctionSignatureTests(UpdatorTests):
     rule = { "moudle": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+class RemoveFunctionTests(UpdatorTests):
+  def setUpClass():
+    print("-------------------------------")
+    print("Remove function tests")
+    print("-------------------------------")
+
+  def test_remove_function_without_params(self):
+    sourceCode = '''
+      import os as s
+      s.remove()
+      a = 1 + 2
+    '''
+
+    expectedConvertedCode = '''
+      import os as s
+      a = 1 + 2
+    '''
+
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove()", 
+         "patternToReplace": "" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_remove_function_with_params(self):
+    sourceCode = '''
+      import os
+      os.remove("shir")
+      b = 1     
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      b = 1
+    '''
+
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+class RemoveFunctionParamTests(UpdatorTests):
+  def setUpClass():
+    print("-------------------------------")
+    print("Remove function params tests")
+    print("-------------------------------")
+
+  def test_remove_function_last_param(self):
+    sourceCode = '''
+      import os
+      os.remove('shir', 'binyamin')        
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.delete('shir')        
+    '''
+
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($1, $2)", 
+         "patternToReplace": "delete($1)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_remove_function_first_param(self):
+    sourceCode = '''
+      import os
+      os.remove('shir', 'binyamin')        
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.delete('binyamin')        
+    '''
+
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($1, $2)", 
+         "patternToReplace": "delete($2)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_remove_function_middle_param(self):
+    sourceCode = '''
+      import os
+      os.remove('shir', 'binyamin', 'david')        
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.delete('shir', 'david')        
+    '''
+
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($1, $2, $3)", 
+         "patternToReplace": "delete($1, $3)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_remove_function_middle_param_of_objects(self):
+    sourceCode = '''
+      import os
+      os.remove(os.path, object(), object())
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.delete(os.path, object())
+    '''
+
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($1, $2, $3)", 
+         "patternToReplace": "delete($1, $3)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_remove_all_function_params(self):
+    sourceCode = '''
+      import os
+      os.remove(os.path, object(), object())
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.delete()
+    '''
+
+    rule = { "moudle": "os", 
+         "patternToSearch": "remove($all)", 
+         "patternToReplace": "delete()" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)

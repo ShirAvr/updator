@@ -127,3 +127,49 @@ class UpdatorTests(unittest.TestCase):
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_apply_two_rules_on_the_same_expression(self):
+    rules = [ {
+        "moudle": "os",
+        "patternToSearch": "remove($all)",
+        "patternToReplace": "delete($all)"
+      },
+      {
+        "moudle": "os",
+        "patternToSearch": "path",
+        "patternToReplace": "full_path"
+      },
+      {
+        "moudle": "math",
+        "patternToSearch": "pow($1, $2)",
+        "patternToReplace": "pow($2, $1)"
+      } 
+    ]
+
+    self.insertRules(rules)
+
+    sourceCode = '''
+      import os
+      os.remove(os.path)
+      a = 1 + 4
+      b = 2
+      print(os.path)
+      c = a + b
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.delete(os.full_path)
+      a = 1 + 4
+      b = 2
+      print(os.full_path)
+      c = a + b
+    '''
+
+    moudleName = "os"
+    self.createCodeFile(sourceCode)
+    main(moudleName, fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+

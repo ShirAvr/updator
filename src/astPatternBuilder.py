@@ -20,18 +20,17 @@ def preparePattern(pattern, moudle):
   if isinstance(pattern, (ast.Attribute, ast.Subscript)):
     del pattern.ctx
 
-  pattern = ast.parse(pattern)
-
   return pattern
 
-def defineWildcard(matchedWildcard):
-  variable_num = matchedWildcard.group()[1]
-  return SINGLE_WILDCARD_ID + variable_num
 
 def replacingWildCardSigns(pattern):
   pattern = pattern.replace(MULTI_WILDCARD_SIGN, MULTI_WILDCARD_ID)
   pattern = re.sub(r'['+SINGLE_WILDCARD_SIGN+']\\d', defineWildcard, pattern)
   return pattern
+
+def defineWildcard(matchedWildcard):
+  variable_num = matchedWildcard.group()[1]
+  return SINGLE_WILDCARD_ID + variable_num
 
 def is_wildcard(patternNode):
   is_wildcard = patternNode.id[:-1] == SINGLE_WILDCARD_ID
