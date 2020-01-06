@@ -7,12 +7,12 @@ MULTI_WILDCARD_SIGN = "$all"
 SINGLE_WILDCARD_SIGN = "$"
 
 
-def preparePattern(pattern, moudle):
+def preparePattern(pattern, module):
   if pattern is "":
     return None
 
   pattern = replacingWildCardSigns(pattern)
-  pattern = addAliasToPatterns(pattern, moudle)
+  pattern = addAliasToPatterns(pattern, module)
   pattern = ast.parse(pattern).body[0]
 
   if isinstance(pattern, ast.Expr):
@@ -44,6 +44,6 @@ def is_single_wildcard(patternNode):
 def is_multi_wildcard(patternNode):
   return patternNode is MULTI_WILDCARD_ID
 
-def addAliasToPatterns(pattern, moudleAlias):
-  return moudleAlias + "." + pattern;
+def addAliasToPatterns(pattern, moduleAlias):
+  return moduleAlias + "." + pattern;
 

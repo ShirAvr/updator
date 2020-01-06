@@ -40,17 +40,17 @@ class UpdatorTests(unittest.TestCase):
 
   def test_apply_one_rule_change_params_positions(self):
     rules = [ {
-        "moudle": "os",
+        "module": "os",
         "patternToSearch": "remove()",
         "patternToReplace": "delete()"
       },
       {
-        "moudle": "os",
+        "module": "os",
         "patternToSearch": "path",
         "patternToReplace": "full_path"
       },
       {
-        "moudle": "math",
+        "module": "math",
         "patternToSearch": "pow($1, $2)",
         "patternToReplace": "pow($2, $1)"
       } 
@@ -76,26 +76,26 @@ class UpdatorTests(unittest.TestCase):
       os.remove()
     '''
 
-    moudleName = "math"
+    moduleName = "math"
     self.createCodeFile(sourceCode)
-    main(moudleName, fileToConvert)
+    main(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
   def test_apply_two_rules_rename_func_and_attr(self):
     rules = [ {
-        "moudle": "os",
+        "module": "os",
         "patternToSearch": "remove()",
         "patternToReplace": "delete()"
       },
       {
-        "moudle": "os",
+        "module": "os",
         "patternToSearch": "path",
         "patternToReplace": "full_path"
       },
       {
-        "moudle": "math",
+        "module": "math",
         "patternToSearch": "pow($1, $2)",
         "patternToReplace": "pow($2, $1)"
       } 
@@ -121,26 +121,26 @@ class UpdatorTests(unittest.TestCase):
       c = a + b
     '''
 
-    moudleName = "os"
+    moduleName = "os"
     self.createCodeFile(sourceCode)
-    main(moudleName, fileToConvert)
+    main(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
   def test_apply_two_rules_on_the_same_expression(self):
     rules = [ {
-        "moudle": "os",
+        "module": "os",
         "patternToSearch": "remove($all)",
         "patternToReplace": "delete($all)"
       },
       {
-        "moudle": "os",
+        "module": "os",
         "patternToSearch": "path",
         "patternToReplace": "full_path"
       },
       {
-        "moudle": "math",
+        "module": "math",
         "patternToSearch": "pow($1, $2)",
         "patternToReplace": "pow($2, $1)"
       } 
@@ -166,10 +166,70 @@ class UpdatorTests(unittest.TestCase):
       c = a + b
     '''
 
-    moudleName = "os"
+    moduleName = "os"
     self.createCodeFile(sourceCode)
-    main(moudleName, fileToConvert)
+    main(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_execute_with_differents_modules(self):
+    rules = [ {
+        "module": "os",
+        "patternToSearch": "remove($all)",
+        "patternToReplace": "delete($all)"
+      },
+      {
+        "module": "os",
+        "patternToSearch": "path",
+        "patternToReplace": "full_path"
+      },
+      {
+        "module": "math",
+        "patternToSearch": "pow($1, $2)",
+        "patternToReplace": "pow($2, $1)"
+      },
+      {
+        "module": "tensorflow",
+        "patternToSearch": "Variable($1, $2)",
+        "patternToReplace": "Variable($1)"
+      } 
+    ]
+
+    self.insertRules(rules)
+
+    sourceCode = '''
+      import os
+      import math
+      import tensorflow as tf
+      os.remove(os.path)
+      a = 1 + 4
+      b = math.pow(2, a)
+      print(os.path)
+      c = a + b
+      tf.Variable(c, "x")
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      import math
+      import tensorflow as tf
+      os.delete(os.full_path)
+      a = 1 + 4
+      b = math.pow(a, 2)
+      print(os.full_path)
+      c = a + b
+      tf.Variable(c)
+    '''
+
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    main("math", fileToConvert)
+    main("tensorflow", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
 

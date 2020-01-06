@@ -39,7 +39,7 @@ class UpdatorGenericTests(UpdatorTests):
     print("Updator genric tests")
     print("---------------------")
 
-  def test_moudle_name_unused_in_source_code(self):
+  def test_module_name_unused_in_source_code(self):
     sourceCode = '''
       import math
       x = 2
@@ -49,19 +49,19 @@ class UpdatorGenericTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
              "patternToSearch": "pow($all)", 
              "patternToReplace": "pow2($all)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "sys"
-    main(moudleName, fileToConvert)
+    moduleName = "sys"
+    main(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  def test_moudle_name_with_alias(self):
+  def test_module_name_with_alias(self):
     sourceCode = '''
       import math as m
       x = 2
@@ -76,14 +76,14 @@ class UpdatorGenericTests(UpdatorTests):
       m.pow2(x, y)     
     '''
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
              "patternToSearch": "pow($all)", 
              "patternToReplace": "pow2($all)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    moudleName = "math"
-    main(moudleName, fileToConvert)
+    moduleName = "math"
+    main(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -105,7 +105,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete()        
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
              "patternToSearch": "remove()", 
              "patternToReplace": "delete()" }
              
@@ -127,7 +127,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete('shir', 'binyamin')        
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($1, $2)", 
          "patternToReplace": "delete($1, $2)" }
              
@@ -149,7 +149,7 @@ class RenameFunctionTests(UpdatorTests):
       s.delete('shir', 'binyamin')        
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
              
@@ -171,7 +171,7 @@ class RenameFunctionTests(UpdatorTests):
       s.delete('binyamin', 'shir')        
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($1, $2)", 
          "patternToReplace": "delete($2, $1)" }
              
@@ -192,7 +192,7 @@ class RenameFunctionTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
          "patternToSearch": "pow()", 
          "patternToReplace": "pow2()" }
              
@@ -213,7 +213,7 @@ class RenameFunctionTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
          "patternToSearch": "pow($1, $2, $3)", 
          "patternToReplace": "pow2()" }
              
@@ -234,7 +234,7 @@ class RenameFunctionTests(UpdatorTests):
 
     expectedConvertedCode = sourceCode
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
          "patternToSearch": "pow($1)", 
          "patternToReplace": "pow2()" }
              
@@ -256,7 +256,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete()
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
              
@@ -278,7 +278,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete(os.delete())
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
              
@@ -300,7 +300,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete(os.delete('shir', 'binyamin'))
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
              
@@ -322,7 +322,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete(2, os.delete('shir'), 1)
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
              
@@ -344,7 +344,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete(os.delete('bin'), os.delete('shir'), 1)
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
              
@@ -366,7 +366,7 @@ class RenameFunctionTests(UpdatorTests):
       os.delete(os.delete(os.delete('shir', 1), 2), 3)
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete($all)" }
              
@@ -395,7 +395,7 @@ class RemoveFunctionTests(UpdatorTests):
       a = 1 + 2
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove()", 
          "patternToReplace": "" }
              
@@ -418,7 +418,7 @@ class RemoveFunctionTests(UpdatorTests):
       b = 1
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "" }
              
@@ -446,7 +446,7 @@ class RemoveFunctionParamTests(UpdatorTests):
       os.delete('shir')        
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($1, $2)", 
          "patternToReplace": "delete($1)" }
              
@@ -468,7 +468,7 @@ class RemoveFunctionParamTests(UpdatorTests):
       os.delete('binyamin')        
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($1, $2)", 
          "patternToReplace": "delete($2)" }
              
@@ -490,7 +490,7 @@ class RemoveFunctionParamTests(UpdatorTests):
       os.delete('shir', 'david')        
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($1, $2, $3)", 
          "patternToReplace": "delete($1, $3)" }
              
@@ -512,7 +512,7 @@ class RemoveFunctionParamTests(UpdatorTests):
       os.delete(os.path, object())
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($1, $2, $3)", 
          "patternToReplace": "delete($1, $3)" }
              
@@ -534,7 +534,7 @@ class RemoveFunctionParamTests(UpdatorTests):
       os.delete()
     '''
 
-    rule = { "moudle": "os", 
+    rule = { "module": "os", 
          "patternToSearch": "remove($all)", 
          "patternToReplace": "delete()" }
              
@@ -566,7 +566,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
       math.pow(y, x)
     '''
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
              "patternToSearch": "pow($1, $2)", 
              "patternToReplace": "pow($2, $1)" }
              
@@ -588,7 +588,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
       math.pow(3, 2)
     '''
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
              "patternToSearch": "pow($1, $2)", 
              "patternToReplace": "pow($2, $1)" }
              
@@ -610,7 +610,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
       stool.join('binyamin', 'shir')  
     '''
 
-    rule = { "moudle": "stringTool", 
+    rule = { "module": "stringTool", 
              "patternToSearch": "join($1, $2)", 
              "patternToReplace": "join($2, $1)" }
              
@@ -636,7 +636,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
       math.pow(y, math.pow(5, 4))
     '''
 
-    rule = { "moudle": "math", 
+    rule = { "module": "math", 
              "patternToSearch": "pow($1, $2)", 
              "patternToReplace": "pow($2, $1)" }
 
@@ -664,7 +664,7 @@ class ChangeAttributeTests(UpdatorTests):
       os.full_path
     '''
 
-    rule = { "moudle": "os", "patternToSearch": "path", "patternToReplace": "full_path" }
+    rule = { "module": "os", "patternToSearch": "path", "patternToReplace": "full_path" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     main("os", fileToConvert)
@@ -683,7 +683,7 @@ class ChangeAttributeTests(UpdatorTests):
       os.full_name.upper()
     '''
 
-    rule = { "moudle": "os", "patternToSearch": "name", "patternToReplace": "full_name" }
+    rule = { "module": "os", "patternToSearch": "name", "patternToReplace": "full_name" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     main("os", fileToConvert)
@@ -701,7 +701,7 @@ class ChangeAttributeTests(UpdatorTests):
       import os
     '''
 
-    rule = { "moudle": "os", "patternToSearch": "path", "patternToReplace": "" }
+    rule = { "module": "os", "patternToSearch": "path", "patternToReplace": "" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     main("os", fileToConvert)
