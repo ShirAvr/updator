@@ -17,10 +17,10 @@ def findModuleAlias(tree, moduleName):
       self.aliasModuleName = None;
 
     def visit_alias(self, node):
-        if (node.name is self.moduleName and node.asname is not None):
-          self.aliasModuleName = node.asname
-        elif (node.name is self.moduleName and node.asname is None):
-          self.aliasModuleName = node.name
+      if (node.name is self.moduleName and node.asname is not None):
+        self.aliasModuleName = node.asname
+      elif (node.name is self.moduleName and node.asname is None):
+        self.aliasModuleName = node.name
 
     def get_found_alias(self):
       return self.aliasModuleName

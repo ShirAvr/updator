@@ -377,6 +377,28 @@ class RenameFunctionTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
+  def test_apply_rule_change_function_inside_rule_inside_rule(self):
+    sourceCode = '''
+      import os
+      os.remove(os.remove(os.remove('shir', 1), 2), 3)
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.delete(3, os.delete(2, os.delete(1, 'shir')))
+    '''
+
+    rule = { "module": "os", 
+         "patternToSearch": "remove($1, $2)", 
+         "patternToReplace": "delete($2, $1)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    main("os", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
 class RemoveFunctionTests(UpdatorTests):
   def setUpClass():
     print("-------------------------------")
