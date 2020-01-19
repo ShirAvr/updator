@@ -131,8 +131,8 @@ class UpdatorTests(unittest.TestCase):
   def test_apply_two_rules_on_the_same_expression(self):
     rules = [ {
         "module": "os",
-        "patternToSearch": "remove($all)",
-        "patternToReplace": "delete($all)"
+        "patternToSearch": "remove($_)",
+        "patternToReplace": "delete($_)"
       },
       {
         "module": "os",
@@ -176,8 +176,8 @@ class UpdatorTests(unittest.TestCase):
   def test_execute_with_differents_modules(self):
     rules = [ {
         "module": "os",
-        "patternToSearch": "remove($all)",
-        "patternToReplace": "delete($all)"
+        "patternToSearch": "remove($_)",
+        "patternToReplace": "delete($_)"
       },
       {
         "module": "os",

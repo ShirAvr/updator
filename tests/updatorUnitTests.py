@@ -50,8 +50,8 @@ class UpdatorGenericTests(UpdatorTests):
     expectedConvertedCode = sourceCode
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($all)", 
-             "patternToReplace": "pow2($all)" }
+             "patternToSearch": "pow($_)", 
+             "patternToReplace": "pow2($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -77,8 +77,8 @@ class UpdatorGenericTests(UpdatorTests):
     '''
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($all)", 
-             "patternToReplace": "pow2($all)" }
+             "patternToSearch": "pow($_)", 
+             "patternToReplace": "pow2($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -150,8 +150,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "delete($all)" }
+         "patternToSearch": "remove($_)", 
+         "patternToReplace": "delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -257,8 +257,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "delete($all)" }
+         "patternToSearch": "remove($_)", 
+         "patternToReplace": "delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -279,8 +279,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "delete($all)" }
+         "patternToSearch": "remove($_)", 
+         "patternToReplace": "delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -301,8 +301,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "delete($all)" }
+         "patternToSearch": "remove($_)", 
+         "patternToReplace": "delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -323,8 +323,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "delete($all)" }
+         "patternToSearch": "remove($_)", 
+         "patternToReplace": "delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -345,8 +345,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "delete($all)" }
+         "patternToSearch": "remove($_)", 
+         "patternToReplace": "delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -367,8 +367,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
-         "patternToReplace": "delete($all)" }
+         "patternToSearch": "remove($_)", 
+         "patternToReplace": "delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -441,7 +441,7 @@ class RemoveFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
+         "patternToSearch": "remove($_)", 
          "patternToReplace": "" }
              
     self.insertRule(rule)
@@ -557,7 +557,7 @@ class RemoveFunctionParamTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($all)", 
+         "patternToSearch": "remove($_)", 
          "patternToReplace": "delete()" }
              
     self.insertRule(rule)

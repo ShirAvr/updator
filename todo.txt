@@ -6,7 +6,7 @@ TODO:
 3. Seperate to appropriate modules and classes. 🤗
 4. Remove unnecessary code - not complete 🙄
 5. Fix remove node feature  🤗
-6. add more cases to check - as combined use of $n + $all... 🙄
+6. add more cases to check - as combined use of $n + $_... 🙄
 	and cases we wrote on the notebook... as remove params.. and so on
 	
 7. add test related to 1 - combined rules together.. 🤗
@@ -21,6 +21,6 @@ What's next? list with order
 
 6. Fix comments and add new ones 🙄
 
-6. Add more cases to check - as combined use of $n + $all... 🙄
+6. Add more cases to check - as combined use of $n + $_... 🙄
 	 and cases we wrote on the notebook... as remove params.. and so on
 

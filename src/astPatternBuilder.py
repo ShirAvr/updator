@@ -3,7 +3,7 @@ import re
 
 SINGLE_WILDCARD_ID = "__updator_wildcard"
 MULTI_WILDCARD_ID = "__updator_multiwildcard"
-MULTI_WILDCARD_SIGN = "$all"
+MULTI_WILDCARD_SIGN = "$_"
 SINGLE_WILDCARD_SIGN = "$"
 
 

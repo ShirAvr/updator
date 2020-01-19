@@ -53,7 +53,7 @@ class AstPatternConverter:
     if variables == {}:
       return patternToReplace
 
-    class retransformPattern(ast.NodeTransformer):
+    class RetransformPattern(ast.NodeTransformer):
       def visit_Name(self, node):
         if patternSelf.is_wildcard(node):
           return variables[node.id]
@@ -61,7 +61,7 @@ class AstPatternConverter:
           return node
 
     patternToReplace = copy.deepcopy(patternToReplace)
-    return retransformPattern().visit(patternToReplace)
+    return RetransformPattern().visit(patternToReplace)
 
   def is_wildcard(self, nodePattern):
     return patternBuilder.is_wildcard(nodePattern)
