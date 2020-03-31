@@ -14,6 +14,12 @@ class DbInterface:
 	def createIndex(self):
 		self.rules.create_index([("module", pymongo.ASCENDING), ("patternToSearch", pymongo.ASCENDING)], unique=True)
 
+	def getLibs(self):
+ 		return self.rules.aggregate([{"$group": {"_id": "$module", "count": {"$sum": 1}}}])
+
+	# def getLibs(self):
+ 		# return self.rules.find()
+
 	def insertRule(self, rule):
 		self.rules.insert_one(rule)
 

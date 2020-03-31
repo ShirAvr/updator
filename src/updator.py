@@ -1,6 +1,10 @@
 import ast
 import astor
+# import argparse
+import click
 import os.path
+import os
+from tabulate import tabulate
 import src.astPatternBuilder as patternBuilder
 from src.dbInterface import DbInterface
 from src.fsInterface import FsInterface
@@ -64,24 +68,71 @@ def applyRule(rule, module, tree):
   # print(ast.dump(tree))
   # print("============================")
 
-def main(module, filepath, argv=None):
+# def main(module, filepath, argv=None):
+
+@click.group()
+
+def main():
+  """Automatically upgrade your code"""
+
+@main.command()
+@click.argument('lib', metavar="lib", type=click.STRING)
+@click.argument('path', metavar="path", type=click.Path(exists=True))
+
+def run(lib, path):
+  """execute updator to apply the upgrade"""
   fsInterface = FsInterface()
   dbInterface = DbInterface()
 
-  sourceCode = fsInterface.readFileSourceCode(filepath)
+  sourceCode = fsInterface.readFileSourceCode(path)
   tree = ast.parse(sourceCode)
-  moduleAlias = findModuleAlias(tree, module)
+  moduleAlias = findModuleAlias(tree, lib)
 
   if moduleAlias is None:
     return
 
-  rules = dbInterface.findRulesByModule(module)
+  rules = dbInterface.findRulesByModule(lib)
 
   for rule in rules:
     applyRule(rule, moduleAlias, tree)
 
   convertedCode = astor.to_source(tree)
-  fsInterface.saveConvertedCode(filepath, convertedCode)
+  fsInterface.saveConvertedCode(args.path, convertedCode)
+
+  print("finish")
+
+@main.command()
+def show_libs():
+  """show list of libraries"""
+  dbInterface = DbInterface()
+  libs = dbInterface.getLibs()
+  libs = map(lambda l: [l["_id"], l["count"]], libs)
+  print(tabulate(list(libs), headers=["library", "rules count"]))
+
+@main.command()
+@click.argument('lib', metavar="lib", type=click.STRING)
+def show_rules(lib):
+  """show list of rules of a certain library"""
+  dbInterface = DbInterface()
+  print("all libs")
+
+@main.command()
+@click.argument('lib', metavar="lib", type=click.STRING)
+@click.argument('ruleNum', metavar="ruleNum", type=click.INT)
+def filter_rule(lib, ruleNum):
+  """filter rule of a certain library"""
+
+  dbInterface = DbInterface()
+  print("all libs")
+
+@main.command()
+@click.argument('lib', metavar="lib", type=click.STRING)
+@click.argument('patternToSearch', metavar="patternToSearch", type=click.STRING)
+@click.argument('patternToReplace', metavar="patternToReplace", type=click.STRING)
+def add_rule(lib, patternToSearch, patternToReplace):
+  """add rule to a certain library"""
+  dbInterface = DbInterface()
+  print("all libs")
 
 if __name__ == '__main__':
   main()
