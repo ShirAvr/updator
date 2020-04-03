@@ -17,8 +17,8 @@ def findModuleAlias(tree, moduleName):
 
     def __init__(self, moduleName):
       super(AliasFinder, self).__init__()
-      self.moduleName = moduleName;
-      self.aliasModuleName = None;
+      self.moduleName = moduleName
+      self.aliasModuleName = None
 
     def visit_alias(self, node):
       if (node.name is self.moduleName and node.asname is not None):
@@ -70,6 +70,18 @@ def applyRule(rule, module, tree):
 
 # def main(module, filepath, argv=None):
 
+def showRules(dbInterface, lib):
+  rules = dbInterface.findAllRulesByLib(lib)
+  rules = list(map(lambda r: [r["patternToSearch"], r["patternToReplace"], r["active"]], rules))
+
+  if rules == []:
+    print("library '" + lib + "' does not exists.")
+  else:
+    print("Rules for '" + lib + "' library: \n")
+    print(tabulate(rules, headers=["id", "patternToSearch", "patternToReplace", "active"], showindex="always"))
+
+  return rules
+
 @click.group()
 
 def main():
@@ -91,7 +103,7 @@ def run(lib, path):
   if moduleAlias is None:
     return
 
-  rules = dbInterface.findRulesByModule(lib)
+  rules = dbInterface.findRulesByLib(lib)
 
   for rule in rules:
     applyRule(rule, moduleAlias, tree)
@@ -105,7 +117,7 @@ def run(lib, path):
 def show_libs():
   """show list of libraries"""
   dbInterface = DbInterface()
-  libs = dbInterface.getLibs()
+  libs = dbInterface.findLibs()
   libs = map(lambda l: [l["_id"], l["count"]], libs)
   print(tabulate(list(libs), headers=["library", "rules count"]))
 
@@ -114,16 +126,33 @@ def show_libs():
 def show_rules(lib):
   """show list of rules of a certain library"""
   dbInterface = DbInterface()
-  print("all libs")
+  showRules(dbInterface, lib)
 
 @main.command()
 @click.argument('lib', metavar="lib", type=click.STRING)
-@click.argument('ruleNum', metavar="ruleNum", type=click.INT)
-def filter_rule(lib, ruleNum):
-  """filter rule of a certain library"""
-
+def deactivate_rule(lib):
+  """deactivate rule of a certain library"""
   dbInterface = DbInterface()
-  print("all libs")
+  rules = showRules(dbInterface, lib)
+  if rules != []:
+    choices= [str(i) for i in range(len(rules))]
+    id = click.prompt("Chose rule id to deactivate", type=click.Choice(choices), confirmation_prompt=True)
+    dbInterface.deactivateRule({"module": lib, "patternToSearch": rules[int(id)][0]})
+    print("\nDeactivate rule id (" + id + ") successfully.")
+    showRules(dbInterface, lib)
+
+@main.command()
+@click.argument('lib', metavar="lib", type=click.STRING)
+def reactivate_rule(lib):
+  """reactivate rule of a certain library"""
+  dbInterface = DbInterface()
+  rules = showRules(dbInterface, lib)
+  if rules != []:
+    choices= [str(i) for i in range(len(rules))]
+    id = click.prompt("Chose rule id to reactivate", type=click.Choice(choices), confirmation_prompt=True)
+    dbInterface.reactivateRule({"module": lib, "patternToSearch": rules[int(id)][0]})
+    print("\nReactivate rule id (" + id + ") successfully.")
+    showRules(dbInterface, lib)
 
 @main.command()
 @click.argument('lib', metavar="lib", type=click.STRING)

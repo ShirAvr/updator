@@ -14,11 +14,8 @@ class DbInterface:
 	def createIndex(self):
 		self.rules.create_index([("module", pymongo.ASCENDING), ("patternToSearch", pymongo.ASCENDING)], unique=True)
 
-	def getLibs(self):
+	def findLibs(self):
  		return self.rules.aggregate([{"$group": {"_id": "$module", "count": {"$sum": 1}}}])
-
-	# def getLibs(self):
- 		# return self.rules.find()
 
 	def insertRule(self, rule):
 		self.rules.insert_one(rule)
@@ -26,6 +23,15 @@ class DbInterface:
 	def insertRules(self, rules):
 		self.rules.insert_many(rules)
 
-	def findRulesByModule(self, module):
+	def deactivateRule(self, rule):
+		self.rules.update_one(rule, { "$set": {"active": False}})
+
+	def reactivateRule(self, rule):
+		self.rules.update_one(rule, { "$set": {"active": True}})
+
+	def findRulesByLib(self, module):
+		return self.rules.find({"module": module, "active": True})
+
+	def findAllRulesByLib(self, module):
 		return self.rules.find({"module": module})
 
