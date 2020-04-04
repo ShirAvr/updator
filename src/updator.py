@@ -68,7 +68,7 @@ def applyRule(rule, module, tree):
   # print(ast.dump(tree))
   # print("============================")
 
-# def main(module, filepath, argv=None):
+# def cli(module, filepath, argv=None):
 
 def showRules(dbInterface, lib):
   rules = dbInterface.findAllRulesByLib(lib)
@@ -91,27 +91,28 @@ def main():
 @click.argument('lib', metavar="lib", type=click.STRING)
 @click.argument('path', metavar="path", type=click.Path(exists=True))
 
+# def main(module, filepath, argv=None):  
 def run(lib, path):
   """execute updator to apply the upgrade"""
   fsInterface = FsInterface()
   dbInterface = DbInterface()
 
-  sourceCode = fsInterface.readFileSourceCode(path)
+  sourceCode = fsInterface.readFileSourceCode(filepath)
   tree = ast.parse(sourceCode)
-  moduleAlias = findModuleAlias(tree, lib)
+  moduleAlias = findModuleAlias(tree, module)
 
   if moduleAlias is None:
     return
 
-  rules = dbInterface.findRulesByLib(lib)
+  rules = dbInterface.findRulesByLib(module)
 
   for rule in rules:
     applyRule(rule, moduleAlias, tree)
 
   convertedCode = astor.to_source(tree)
-  fsInterface.saveConvertedCode(args.path, convertedCode)
+  fsInterface.saveConvertedCode(filepath, convertedCode)
 
-  print("finish")
+  # print("finish")
 
 @main.command()
 def show_libs():
@@ -156,12 +157,24 @@ def reactivate_rule(lib):
 
 @main.command()
 @click.argument('lib', metavar="lib", type=click.STRING)
-@click.argument('patternToSearch', metavar="patternToSearch", type=click.STRING)
-@click.argument('patternToReplace', metavar="patternToReplace", type=click.STRING)
-def add_rule(lib, patternToSearch, patternToReplace):
+def add_rule(lib):
   """add rule to a certain library"""
-  dbInterface = DbInterface()
-  print("all libs")
+  patternToSearch = click.prompt("Enter pattern to search", type=click.STRING)
+  patternToReplace = click.prompt("Enter pattern to replace", type=click.STRING)
+  click.confirm("Do you confirm?", abort=True)
+
+  try:
+    ast.parse(patternToSearch)
+    ast.parse(patternToReplace)
+  except:
+    print("Given patterns are not valid.")
+  else:
+    DbInterface().insertRule({
+      "module": lib,
+      "patternToSearch": patternToSearch,
+      "patternToReplace": patternToReplace
+    })
+    print("Inserted given rule successfully.")
 
 if __name__ == '__main__':
   main()
