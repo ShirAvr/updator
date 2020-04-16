@@ -82,6 +82,7 @@ def showRules(dbInterface, lib):
 
   return rules
 
+
 @click.group()
 
 def main():
@@ -89,7 +90,8 @@ def main():
 
 @main.command()
 @click.argument('lib', metavar="lib", type=click.STRING)
-@click.argument('path', metavar="path", type=click.Path(exists=True))
+# @click.argument('path', metavar="path", type=click.Path(exists=True))
+@click.argument('path', metavar="path", type=click.STRING)
 
 # def main(module, filepath, argv=None):  
 def run(lib, path):
@@ -97,20 +99,20 @@ def run(lib, path):
   fsInterface = FsInterface()
   dbInterface = DbInterface()
 
-  sourceCode = fsInterface.readFileSourceCode(filepath)
+  sourceCode = fsInterface.readFileSourceCode(path)
   tree = ast.parse(sourceCode)
-  moduleAlias = findModuleAlias(tree, module)
+  moduleAlias = findModuleAlias(tree, lib)
 
   if moduleAlias is None:
     return
 
-  rules = dbInterface.findRulesByLib(module)
+  rules = dbInterface.findRulesByLib(lib)
 
   for rule in rules:
     applyRule(rule, moduleAlias, tree)
 
   convertedCode = astor.to_source(tree)
-  fsInterface.saveConvertedCode(filepath, convertedCode)
+  fsInterface.saveConvertedCode(path, convertedCode)
 
   # print("finish")
 

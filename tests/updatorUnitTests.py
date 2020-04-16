@@ -3,6 +3,9 @@ import unittest
 import textwrap
 from src.dbInterface import DbInterface
 from src.updator import main
+from click.testing import CliRunner
+# import src.updator as updator
+
 
 fileToConvert = "./tests/codeFileToConvert.py"
 
@@ -10,6 +13,7 @@ class UpdatorTests(unittest.TestCase):
   def __init__(self, *args, **kwargs):
     super(UpdatorTests, self).__init__(*args, **kwargs)
     self.dbInterface = DbInterface()
+    self.cliRunner = CliRunner()
 
   def setUp(self):
     print(self._testMethodName)
@@ -17,6 +21,9 @@ class UpdatorTests(unittest.TestCase):
 
   def insertRule(self, rule):
     self.dbInterface.insertRule(rule)
+
+  def updatorRun(self, lib, fileToConvert):
+    self.cliRunner.invoke(main, ["run", lib, fileToConvert])
 
   def createCodeFile(self, codeText):
     with open(fileToConvert, 'w') as f:
@@ -56,7 +63,7 @@ class UpdatorGenericTests(UpdatorTests):
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     moduleName = "sys"
-    main(moduleName, fileToConvert)
+    self.updatorRun(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -83,7 +90,7 @@ class UpdatorGenericTests(UpdatorTests):
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     moduleName = "math"
-    main(moduleName, fileToConvert)
+    self.updatorRun(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -111,7 +118,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -133,7 +141,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -155,7 +164,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -177,7 +187,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -198,7 +209,7 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("math", fileToConvert)
+    self.updatorRun("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -219,7 +230,7 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("math", fileToConvert)
+    self.updatorRun("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -240,7 +251,7 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("math", fileToConvert)
+    self.updatorRun("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -262,7 +273,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -284,7 +296,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -306,7 +319,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -328,7 +342,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -350,7 +365,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -372,7 +388,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -394,7 +411,8 @@ class RenameFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -423,7 +441,8 @@ class RemoveFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -446,7 +465,8 @@ class RemoveFunctionTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -474,7 +494,8 @@ class RemoveFunctionParamTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -496,7 +517,8 @@ class RemoveFunctionParamTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -518,7 +540,8 @@ class RemoveFunctionParamTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -540,7 +563,8 @@ class RemoveFunctionParamTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -562,7 +586,8 @@ class RemoveFunctionParamTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -594,7 +619,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("math", fileToConvert)
+    self.updatorRun("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -616,7 +641,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("math", fileToConvert)
+    self.updatorRun("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -638,7 +663,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("stringTool", fileToConvert)
+    self.updatorRun("stringTool", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -664,7 +689,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("math", fileToConvert)
+    self.updatorRun("math", fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -689,7 +714,8 @@ class ChangeAttributeTests(UpdatorTests):
     rule = { "module": "os", "patternToSearch": "path", "patternToReplace": "full_path" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -708,7 +734,8 @@ class ChangeAttributeTests(UpdatorTests):
     rule = { "module": "os", "patternToSearch": "name", "patternToReplace": "full_name" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -726,7 +753,8 @@ class ChangeAttributeTests(UpdatorTests):
     rule = { "module": "os", "patternToSearch": "path", "patternToReplace": "" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)

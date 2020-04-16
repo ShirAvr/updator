@@ -3,6 +3,8 @@ import unittest
 import textwrap
 from src.dbInterface import DbInterface
 from src.updator import main
+# import src.updator as updator
+from click.testing import CliRunner
 
 fileToConvert = "./tests/codeFileToConvert.py"
 
@@ -10,10 +12,20 @@ class UpdatorTests(unittest.TestCase):
   def __init__(self, *args, **kwargs):
     super(UpdatorTests, self).__init__(*args, **kwargs)
     self.dbInterface = DbInterface()
+    self.cliRunner = CliRunner()
 
   def setUp(self):
     print(self._testMethodName)
     self.dbInterface.dropRules()
+
+  def updatorRun(self, lib, fileToConvert):
+    self.cliRunner.invoke(main, ["run", lib, fileToConvert])
+
+  def updatorLibs(self):
+    self.cliRunner.invoke(main, ["show-libs"])
+
+  def updatorShowRules(self, lib):
+    self.cliRunner.invoke(main, ["show-rules", lib])
 
   def insertRules(self, rules):
     self.dbInterface.insertRules(rules)
@@ -78,7 +90,7 @@ class UpdatorTests(unittest.TestCase):
 
     moduleName = "math"
     self.createCodeFile(sourceCode)
-    main(moduleName, fileToConvert)
+    self.updatorRun(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -123,7 +135,7 @@ class UpdatorTests(unittest.TestCase):
 
     moduleName = "os"
     self.createCodeFile(sourceCode)
-    main(moduleName, fileToConvert)
+    self.updatorRun(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -168,7 +180,7 @@ class UpdatorTests(unittest.TestCase):
 
     moduleName = "os"
     self.createCodeFile(sourceCode)
-    main(moduleName, fileToConvert)
+    self.updatorRun(moduleName, fileToConvert)
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
@@ -223,9 +235,9 @@ class UpdatorTests(unittest.TestCase):
     '''
 
     self.createCodeFile(sourceCode)
-    main("os", fileToConvert)
-    main("math", fileToConvert)
-    main("tensorflow", fileToConvert)
+    self.updatorRun("os", fileToConvert)
+    self.updatorRun("math", fileToConvert)
+    self.updatorRun("tensorflow", fileToConvert)
 
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
