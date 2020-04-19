@@ -1,6 +1,7 @@
 import sys
 import unittest
 import textwrap
+import traceback
 from src.dbInterface import DbInterface
 from src.updator import main
 from click.testing import CliRunner
@@ -23,7 +24,13 @@ class UpdatorTests(unittest.TestCase):
     self.dbInterface.insertRule(rule)
 
   def updatorRun(self, lib, fileToConvert):
-    self.cliRunner.invoke(main, ["run", lib, fileToConvert])
+    result = self.cliRunner.invoke(main, ["run", lib, fileToConvert])
+    if result.output is not "":
+      print(result.output)
+    if result.exit_code is not 0 and result.exc_info is not None:
+      print(result.exc_info[0])
+      print(result.exc_info[1])
+      traceback.print_tb(result.exc_info[2])
 
   def createCodeFile(self, codeText):
     with open(fileToConvert, 'w') as f:
@@ -658,8 +665,10 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "stringTool", 
+             "property": "join",
              "patternToSearch": "join($1, $2)", 
-             "patternToReplace": "join($2, $1)" }
+             "patternToReplace": "join($2, $1)",
+             "applyToAssignment": True }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -686,6 +695,134 @@ class ReplaceFuncParamsTests(UpdatorTests):
     rule = { "module": "math", 
              "patternToSearch": "pow($1, $2)", 
              "patternToReplace": "pow($2, $1)" }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_replace_params_positions_when_function_was_assigned(self):
+    sourceCode = '''
+      import math
+      a = math.pow
+      a(1, 2)
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      a = math.pow
+      a(2, 1)
+    '''
+
+    rule = { 
+      "module": "math",
+      "property": "pow",
+      "patternToSearch": "pow($1, $2)",
+      "patternToReplace": "pow($2, $1)",
+      "applyToAssignment": True 
+    }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_replace_params_positions_for_all_function_instances(self):
+    sourceCode = '''
+      import math
+      a = math.pow
+      a(1, 2)
+      math.pow(3,4)
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      a = math.pow
+      a(2, 1)
+      math.pow(4,3)
+    '''
+
+    rule = { 
+      "module": "math",
+      "property": "pow",
+      "patternToSearch": "pow($1, $2)",
+      "patternToReplace": "pow($2, $1)",
+      "applyToAssignment": True 
+    }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_update_all_function_instances_when_params_are_variables(self):
+    sourceCode = '''
+      import math
+      a = math.pow
+      x = 1
+      y = 2
+      t = 3
+      z = 4
+      m.a = 1
+      a(x, y)
+      math.pow(t, z)
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      a = math.pow
+      x = 1
+      y = 2
+      t = 3
+      z = 4
+      m.a = 1
+      a(y, x)
+      math.pow(z, t)
+    '''
+
+    rule = { 
+      "module": "math",
+      "property": "pow",
+      "patternToSearch": "pow($1, $2)",
+      "patternToReplace": "pow($2, $1)",
+      "applyToAssignment": True 
+    }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_replace_params_positions_for_all_function_alias_instances(self):
+    sourceCode = '''
+      import math as m
+      a = m.pow
+      a(1, 2)
+      m.pow(3,4)
+    '''
+
+    expectedConvertedCode = '''
+      import math as m
+      a = m.pow
+      a(2, 1)
+      m.pow(4,3)
+    '''
+
+    rule = { 
+      "module": "math",
+      "property": "pow",
+      "patternToSearch": "pow($1, $2)",
+      "patternToReplace": "pow($2, $1)",
+      "applyToAssignment": True 
+    }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)

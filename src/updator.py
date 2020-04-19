@@ -8,7 +8,7 @@ from tabulate import tabulate
 import src.astPatternBuilder as patternBuilder
 from src.dbInterface import DbInterface
 from src.fsInterface import FsInterface
-from src.astPatternConverter import AstPatternConverter
+from src.astConverter import AstConverter
 
 __version__ = '0.1'
 
@@ -46,14 +46,13 @@ def findModuleAlias(tree, moduleName):
   return aliasFinderClass.get_found_alias()
 
 def applyRule(rule, module, tree):
-  patternToSearch = rule["patternToSearch"]
-  patternToReplace = rule["patternToReplace"]
+  if rule.get("applyToAssignment"):
+    applyAssignmentRule(rule, module, tree)
+
   patternVars = {}
-
-  patternToSearch = patternBuilder.preparePattern(patternToSearch, module)
-  patternToReplace = patternBuilder.preparePattern(patternToReplace, module)
-
-  patternConverter = AstPatternConverter(patternToSearch, patternToReplace, patternVars)
+  
+  rule = patternBuilder.prepareRule(rule, module)
+  astConverter = AstConverter(rule, patternVars)
 
   # print("patternToSearch: " + ast.dump(patternToSearch))
   # print("patternToReplace: " + ast.dump(patternToReplace))
@@ -62,13 +61,20 @@ def applyRule(rule, module, tree):
   # print(ast.dump(tree))
   # print("==============================")
   
-  patternConverter.scan_ast(tree)
+  astConverter.scan_ast(tree)
   
   # print("=========== after: ==========")
   # print(ast.dump(tree))
   # print("============================")
 
 # def cli(module, filepath, argv=None):
+
+def applyAssignmentRule(rule,  module, tree):
+  assignmentRule = patternBuilder.createAssignmentRule(rule, module)
+  patternVars = {}
+
+  astConverter = AstConverter(assignmentRule, patternVars, assignRule=True)
+  astConverter.scan_ast_forAssignment(tree)
 
 def showRules(dbInterface, lib):
   rules = dbInterface.findAllRulesByLib(lib)

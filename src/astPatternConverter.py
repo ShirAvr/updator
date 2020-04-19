@@ -28,8 +28,13 @@ class AstPatternConverter:
       def visit(self, node):
         ast.NodeVisitor.visit(self, node)
 
+        # print("====")
+        # print("patternToReplace: "+ ast.dump(patternToReplace))
+        # print("node: "+ ast.dump(node))
+        # print("====")
+
         if isinstance(node, nodetype) and is_ast_like(node, pattrenToSearch, patternSelf.variables):
-          # print("found node: " + ast.dump(node))
+          print("found node")
           if patternToReplace is not None and patternSelf.variables != {}:
             newNode = AstPatternConverter.fillVariables(patternSelf, node, patternToReplace)
             newNode = ast.copy_location(newNode, node) # not sure it's needed

@@ -7,12 +7,22 @@ MULTI_WILDCARD_SIGN = "$_"
 SINGLE_WILDCARD_SIGN = "$"
 
 
-def preparePattern(pattern, module):
+def prepareRule(rule, module):
+  newRule = {
+    "patternToSearch": preparePattern(rule["patternToSearch"], module),
+    "patternToReplace": preparePattern(rule["patternToReplace"], module)
+  }
+
+  return newRule
+
+def preparePattern(pattern, module="", addAlias=True):
   if pattern is "":
     return None
 
   pattern = replacingWildCardSigns(pattern)
-  pattern = addAliasToPatterns(pattern, module)
+
+  if addAlias:
+    pattern = addAliasToPatterns(pattern, module)
   pattern = ast.parse(pattern).body[0]
 
   if isinstance(pattern, ast.Expr):
@@ -22,6 +32,29 @@ def preparePattern(pattern, module):
 
   return pattern
 
+def createAssignmentRule(rule,  module):
+  assignmentPattern = createAssignmentPattern(rule,  module)
+  patternToSearch = adjustPatternToAssignment(rule["patternToSearch"], rule, module)
+  patternToReplace = adjustPatternToAssignment(rule["patternToReplace"], rule, module)
+
+  rule = {
+    "assignmentPattern": preparePattern(assignmentPattern, addAlias=False),
+    "patternToSearch": preparePattern(patternToSearch, addAlias=False),
+    "patternToReplace": preparePattern(patternToReplace, addAlias=False)
+  }
+  return rule
+
+def createAssignmentPattern(rule,  module):
+  return SINGLE_WILDCARD_SIGN + "1 = " + module + "." + rule["property"]
+
+def adjustPatternToAssignment(pattern, rule,  module):
+  pattern = re.sub(r'['+SINGLE_WILDCARD_SIGN+']\\d', increaseWildcardNum, pattern)
+  pattern = pattern.replace(rule["property"], SINGLE_WILDCARD_SIGN + "1")
+  return pattern
+
+def increaseWildcardNum(matchedWildcard):
+  variable_num = matchedWildcard.group()[1]
+  return SINGLE_WILDCARD_SIGN + str(int(variable_num) + 1)
 
 def replacingWildCardSigns(pattern):
   pattern = pattern.replace(MULTI_WILDCARD_SIGN, MULTI_WILDCARD_ID)
