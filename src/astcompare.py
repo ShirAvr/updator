@@ -58,7 +58,7 @@ def is_multi_wildcard(templateNode):
 
 def treatWildcard(nodesToSave, variables, wildcardName, assignment=False):
   existsNodes = variables.get(wildcardName)
-  
+
   # TODO: add more test on this area
   if assignment and existsNodes is not None:
     if not isVariablesEquals(existsNodes, nodesToSave):

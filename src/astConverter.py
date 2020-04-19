@@ -67,15 +67,24 @@ class AstConverter:
     assignPatternType = type(assignmentPattern)
 
     # print("assignmentPattern: "+ ast.dump(assignmentPattern))
+    patternSelf.foundAssign = False
 
     class convertTree(ast.NodeTransformer):
       def visit(self, node):
         ast.NodeVisitor.visit(self, node)
 
-        isinstance(node, assignPatternType) and is_ast_like(node, assignmentPattern, patternSelf.variables, assignment=True)
+        # print("=")
+        # if isinstance(node, assignPatternType):
+        # print("node: "+ ast.dump(node))
+        # print("assignmentPattern: "+ ast.dump(assignmentPattern))
+        # print("patternToSearch: "+ ast.dump(patternToSearch))
 
-        if isinstance(node, patternToSearchType) and is_ast_like(node, patternToSearch, patternSelf.variables, assignment=True):
-          # print("found node: " + ast.dump(node))
+        if isinstance(node, assignPatternType) and is_ast_like(node, assignmentPattern, patternSelf.variables, assignment=True):
+          # print("found node 1: " + ast.dump(node))
+          patternSelf.foundAssign = True
+
+        if isinstance(node, patternToSearchType) and patternSelf.foundAssign and is_ast_like(node, patternToSearch, patternSelf.variables, assignment=True):
+          # print("found node 2: " + ast.dump(node))
           if patternToReplace is not None and patternSelf.variables != {}:
             newNode = AstConverter.fillVariables(patternSelf, node, patternToReplace)
             newNode = ast.copy_location(newNode, node) # not sure it's needed

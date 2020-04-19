@@ -868,7 +868,62 @@ class ChangeAttributeTests(UpdatorTests):
       os.full_name.upper()
     '''
 
-    rule = { "module": "os", "patternToSearch": "name", "patternToReplace": "full_name" }
+    rule = { "module": "os", 
+            "patternToSearch": "name", 
+            "patternToReplace": "full_name" }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("os", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_rename_attr_inside_attr(self):
+    sourceCode = '''
+      import os
+      os.name.upper
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      os.name.up
+    '''
+
+    rule = { "module": "os", 
+            "patternToSearch": "name.upper",
+            "patternToReplace": "name.up" }
+            
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("os", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+
+  def test_rename_attr_inside_attr_as_assignment(self):
+    sourceCode = '''
+      import os
+      a = os.name
+      a.upper
+    '''
+
+    expectedConvertedCode = '''
+      import os
+      a = os.name
+      a.up
+    '''
+
+    rule = { "module": "os", 
+            "patternToSearch": "name.upper",
+            "patternToReplace": "name.up",
+            "property": "name",
+            "applyToAssignment": True
+          }
+            
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     self.updatorRun("os", fileToConvert)
