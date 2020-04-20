@@ -980,7 +980,7 @@ class CombinationTypeTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  def test_change_compound_attr_use_to_function_use(self):
+  def test_change_compound_attr_use_to_function_use_as_assignment(self):
     sourceCode = '''
       import pandas
       m = pandas.MultiIndex.from_tuples([(1, 'ab'), (2, 'bb'), (3, 'cb')])
@@ -1007,7 +1007,7 @@ class CombinationTypeTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
-  def test_change_attr_use_to_function_use_with_alias(self):
+  def test_change_compound_attr_use_to_function_use_with_alias(self):
     sourceCode = '''
       import pandas as pd
       m = pd.MultiIndex.from_tuples([(1, 'ab'), (2, 'bb'), (3, 'cb')])
@@ -1025,6 +1025,52 @@ class CombinationTypeTests(UpdatorTests):
             "patternToSearch": "$1.name = $2", 
             "patternToReplace": "$1 = $1.setName($2)",
             "isAssignmentRule": True }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("pandas", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_change_funtion_use_to_attr_use(self):
+    sourceCode = '''
+      import pandas
+      pandas.setName('myName')
+    '''
+
+    expectedConvertedCode = '''
+      import pandas
+      pandas.name = 'myName'
+    '''
+
+    rule = { "module": "pandas",
+            "patternToSearch": "setName($1)",
+            "patternToReplace": "name = $1" }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("pandas", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_change_compound_funtion_use_to_attr_use(self):
+    sourceCode = '''
+      import pandas
+      pandas.MultiIndex.setName('myName')
+    '''
+
+    expectedConvertedCode = '''
+      import pandas
+      pandas.MultiIndex.name = 'myName'
+    '''
+
+    rule = { "module": "pandas",
+            "patternToSearch": "MultiIndex.setName($1)",
+            "patternToReplace": "MultiIndex.name = $1" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)

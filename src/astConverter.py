@@ -88,7 +88,6 @@ class AstConverter:
           # print("variables", patternSelf.variables)
           # print("variables", ast.dump(patternSelf.variables["__updator_wildcard1"]))
 
-
         if (isinstance(node, patternToSearchType) and 
             patternSelf.foundAssign and 
             is_ast_like(node, patternToSearch, patternSelf.variables, assignment=True)):
