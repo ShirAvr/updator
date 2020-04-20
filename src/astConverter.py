@@ -41,6 +41,7 @@ class AstConverter:
           # print("found node: " + ast.dump(node))
           if patternToReplace is not None and patternSelf.variables != {}:
             newNode = AstConverter.fillVariables(patternSelf, node, patternToReplace)
+            newNode = AstConverter.wrapToNewLine(patternSelf, newNode, node)
             newNode = ast.copy_location(newNode, node) # not sure it's needed
           else:
             newNode = patternToReplace
@@ -88,12 +89,15 @@ class AstConverter:
           # print("variables", ast.dump(patternSelf.variables["__updator_wildcard1"]))
 
 
-        if isinstance(node, patternToSearchType) and patternSelf.foundAssign and is_ast_like(node, patternToSearch, patternSelf.variables, assignment=True):
+        if (isinstance(node, patternToSearchType) and 
+            patternSelf.foundAssign and 
+            is_ast_like(node, patternToSearch, patternSelf.variables, assignment=True)):
           # print("found node 2: " + ast.dump(node))
           # print("variables", patternSelf.variables)
-          
+
           if patternToReplace is not None and patternSelf.variables != {}:
             newNode = AstConverter.fillVariables(patternSelf, node, patternToReplace)
+            newNode = AstConverter.wrapToNewLine(patternSelf, newNode, node)
             newNode = ast.copy_location(newNode, node) # not sure it's needed
           else:
             newNode = patternToReplace
@@ -124,6 +128,19 @@ class AstConverter:
 
     patternToReplace = copy.deepcopy(patternToReplace)
     return RetransformPattern().visit(patternToReplace)
+
+  def wrapToNewLine(self, newNode, oldNode):
+    if (self.isNodeConsideredNewLine(oldNode) and 
+      self.isNodeNotConsideredNewLine(newNode)):
+      return ast.Expr(newNode)
+    else:
+      return newNode
+
+  def isNodeConsideredNewLine(self, node):
+    return type(node) in [ast.Assign]
+
+  def isNodeNotConsideredNewLine(self, node):
+    return type(node) in [ast.Call]
 
   def is_wildcard(self, nodePattern):
     return patternBuilder.is_wildcard(nodePattern)

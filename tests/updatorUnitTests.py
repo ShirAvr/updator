@@ -959,6 +959,29 @@ class CombinationTypeTests(UpdatorTests):
 
   def test_change_attr_use_to_function_use(self):
     sourceCode = '''
+      import pandas as pd
+      pd.name = 'myName'
+    '''
+
+    expectedConvertedCode = '''
+      import pandas as pd
+      pd.setName('myName')
+    '''
+
+    rule = { "module": "pandas",
+            "patternToSearch": "name = $1",
+            "patternToReplace": "setName($1)" }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("pandas", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_change_compound_attr_use_to_function_use(self):
+    sourceCode = '''
       import pandas
       m = pandas.MultiIndex.from_tuples([(1, 'ab'), (2, 'bb'), (3, 'cb')])
       m.name = 'myName'
@@ -984,3 +1007,29 @@ class CombinationTypeTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
+  def test_change_attr_use_to_function_use_with_alias(self):
+    sourceCode = '''
+      import pandas as pd
+      m = pd.MultiIndex.from_tuples([(1, 'ab'), (2, 'bb'), (3, 'cb')])
+      m.name = 'myName'
+    '''
+
+    expectedConvertedCode = '''
+      import pandas as pd
+      m = pd.MultiIndex.from_tuples([(1, 'ab'), (2, 'bb'), (3, 'cb')])
+      m = m.setName('myName')
+    '''
+
+    rule = { "module": "pandas", 
+            "assignmentPattern": "$1 = pandas.MultiIndex.from_tuples($_)",
+            "patternToSearch": "$1.name = $2", 
+            "patternToReplace": "$1 = $1.setName($2)",
+            "isAssignmentRule": True }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("pandas", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)

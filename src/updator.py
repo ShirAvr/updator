@@ -138,7 +138,10 @@ def run(lib, path):
 
   for rule in rules:
     applyRule(rule, moduleAlias, tree)
-
+  
+  # print("=========== after: ==========")
+  # print(ast.dump(tree))
+  # print("============================")
   convertedCode = astor.to_source(tree)
   fsInterface.saveConvertedCode(path, convertedCode)
 

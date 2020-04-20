@@ -35,10 +35,10 @@ def preparePattern(pattern, module="", addAlias=True):
 def createAssignmentRule(rule,  module, shouldBuild):
   if shouldBuild:
     assignmentPattern = createAssignmentPattern(rule,  module)
-    patternToSearch = adjustPatternToAssignment(rule["patternToSearch"], rule, module)
-    patternToReplace = adjustPatternToAssignment(rule["patternToReplace"], rule, module)
+    patternToSearch = convertPatternToAssignment(rule["patternToSearch"], rule, module)
+    patternToReplace = convertPatternToAssignment(rule["patternToReplace"], rule, module)
   else:
-    assignmentPattern = rule["assignmentPattern"]
+    assignmentPattern = handleAlias(rule["assignmentPattern"], rule["module"], module)
     patternToSearch = rule["patternToSearch"]
     patternToReplace = rule["patternToReplace"]
 
@@ -56,10 +56,13 @@ def createAssignmentRule(rule,  module, shouldBuild):
 def createAssignmentPattern(rule,  module):
   return SINGLE_WILDCARD_SIGN + "1 = " + module + "." + rule["property"]
 
-def adjustPatternToAssignment(pattern, rule,  module):
+def convertPatternToAssignment(pattern, rule,  module):
   pattern = re.sub(r'['+SINGLE_WILDCARD_SIGN+']\\d', increaseWildcardNum, pattern)
   pattern = pattern.replace(rule["property"], SINGLE_WILDCARD_SIGN + "1")
   return pattern
+
+def handleAlias(pattern, module,  alias):
+  return pattern.replace(module, alias)
 
 def increaseWildcardNum(matchedWildcard):
   variable_num = matchedWildcard.group()[1]
