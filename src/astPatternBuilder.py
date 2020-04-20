@@ -32,11 +32,16 @@ def preparePattern(pattern, module="", addAlias=True):
 
   return pattern
 
-def createAssignmentRule(rule,  module):
-  assignmentPattern = createAssignmentPattern(rule,  module)
-  patternToSearch = adjustPatternToAssignment(rule["patternToSearch"], rule, module)
-  patternToReplace = adjustPatternToAssignment(rule["patternToReplace"], rule, module)
-  
+def createAssignmentRule(rule,  module, shouldBuild):
+  if shouldBuild:
+    assignmentPattern = createAssignmentPattern(rule,  module)
+    patternToSearch = adjustPatternToAssignment(rule["patternToSearch"], rule, module)
+    patternToReplace = adjustPatternToAssignment(rule["patternToReplace"], rule, module)
+  else:
+    assignmentPattern = rule["assignmentPattern"]
+    patternToSearch = rule["patternToSearch"]
+    patternToReplace = rule["patternToReplace"]
+
   # print("assignmentPattern: "+ assignmentPattern)
   # print("patternToSearch: "+ patternToSearch)
   # print("patternToReplace: "+ patternToReplace)

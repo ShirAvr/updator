@@ -45,32 +45,54 @@ def findModuleAlias(tree, moduleName):
   aliasFinderClass.visit(tree)
   return aliasFinderClass.get_found_alias()
 
+
 def applyRule(rule, module, tree):
-  if rule.get("applyToAssignment"):
-    applyAssignmentRule(rule, module, tree)
+  if rule.get("isAssignmentRule"):
+    applyAssignmentRule(rule, module, tree, shouldBuild=False)
+  else:
+    if rule.get("applyToAssignment"):
+      applyAssignmentRule(rule, module, tree, shouldBuild=True)
 
-  patternVars = {}
-  
-  rule = patternBuilder.prepareRule(rule, module)
-  astConverter = AstConverter(rule, patternVars)
+    patternVars = {}
+    
+    rule = patternBuilder.prepareRule(rule, module)
+    astConverter = AstConverter(rule, patternVars)
 
-  # print("patternToSearch: " + ast.dump(patternToSearch))
-  # print("patternToReplace: " + ast.dump(patternToReplace))
+    # print("patternToSearch: " + ast.dump(patternToSearch))
+    # print("patternToReplace: " + ast.dump(patternToReplace))
 
-  # print("=========== before ==========")
-  # print(ast.dump(tree))
-  # print("==============================")
+    # print("=========== before ==========")
+    # print(ast.dump(tree))
+    # print("==============================")
+    
+    astConverter.scan_ast(tree)
+
+# def applyRule(rule, module, tree):
+#   if rule.get("applyToAssignment"):
+#     applyAssignmentRule(rule, module, tree)
+
+#   patternVars = {}
   
-  astConverter.scan_ast(tree)
+#   rule = patternBuilder.prepareRule(rule, module)
+#   astConverter = AstConverter(rule, patternVars)
+
+#   # print("patternToSearch: " + ast.dump(patternToSearch))
+#   # print("patternToReplace: " + ast.dump(patternToReplace))
+
+#   # print("=========== before ==========")
+#   # print(ast.dump(tree))
+#   # print("==============================")
   
-  # print("=========== after: ==========")
-  # print(ast.dump(tree))
-  # print("============================")
+#   astConverter.scan_ast(tree)
+  
+#   # print("=========== after: ==========")
+#   # print(ast.dump(tree))
+#   # print("============================")
 
 # def cli(module, filepath, argv=None):
 
-def applyAssignmentRule(rule,  module, tree):
-  assignmentRule = patternBuilder.createAssignmentRule(rule, module)
+def applyAssignmentRule(rule,  module, tree, shouldBuild):
+  assignmentRule = patternBuilder.createAssignmentRule(rule, module, shouldBuild)
   patternVars = {}
 
   astConverter = AstConverter(assignmentRule, patternVars, assignRule=True)

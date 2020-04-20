@@ -73,18 +73,25 @@ class AstConverter:
       def visit(self, node):
         ast.NodeVisitor.visit(self, node)
 
-        # print("=")
+        # print("****")
         # if isinstance(node, assignPatternType):
         # print("node: "+ ast.dump(node))
         # print("assignmentPattern: "+ ast.dump(assignmentPattern))
         # print("patternToSearch: "+ ast.dump(patternToSearch))
 
+        # if isinstance(node, assignPatternType) and (not patternSelf.foundAssign) and is_ast_like(node, assignmentPattern, patternSelf.variables, assignment=True):
+
         if isinstance(node, assignPatternType) and is_ast_like(node, assignmentPattern, patternSelf.variables, assignment=True):
           # print("found node 1: " + ast.dump(node))
           patternSelf.foundAssign = True
+          # print("variables", patternSelf.variables)
+          # print("variables", ast.dump(patternSelf.variables["__updator_wildcard1"]))
+
 
         if isinstance(node, patternToSearchType) and patternSelf.foundAssign and is_ast_like(node, patternToSearch, patternSelf.variables, assignment=True):
           # print("found node 2: " + ast.dump(node))
+          # print("variables", patternSelf.variables)
+          
           if patternToReplace is not None and patternSelf.variables != {}:
             newNode = AstConverter.fillVariables(patternSelf, node, patternToReplace)
             newNode = ast.copy_location(newNode, node) # not sure it's needed

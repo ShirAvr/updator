@@ -951,3 +951,36 @@ class ChangeAttributeTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
+class CombinationTypeTests(UpdatorTests):
+  def setUpClass():
+    print("-------------------------------------")
+    print("Change in Combination of Types tests")
+    print("-------------------------------------")
+
+  def test_change_attr_use_to_function_use(self):
+    sourceCode = '''
+      import pandas
+      m = pandas.MultiIndex.from_tuples([(1, 'ab'), (2, 'bb'), (3, 'cb')])
+      m.name = 'myName'
+    '''
+
+    expectedConvertedCode = '''
+      import pandas
+      m = pandas.MultiIndex.from_tuples([(1, 'ab'), (2, 'bb'), (3, 'cb')])
+      m = m.setName('myName')
+    '''
+
+    rule = { "module": "pandas", 
+            "assignmentPattern": "$1 = pandas.MultiIndex.from_tuples($_)",
+            "patternToSearch": "$1.name = $2", 
+            "patternToReplace": "$1 = $1.setName($2)",
+            "isAssignmentRule": True }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("pandas", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
