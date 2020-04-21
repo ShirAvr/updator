@@ -58,8 +58,7 @@ def applyRule(rule, module, tree):
     rule = patternBuilder.prepareRule(rule, module)
     astConverter = AstConverter(rule, patternVars)
 
-    # print("patternToSearch: " + ast.dump(patternToSearch))
-    # print("patternToReplace: " + ast.dump(patternToReplace))
+    # print("patternToSearch: " + ast.dump(rule["patternToSearch"]))
 
     # print("=========== before ==========")
     # print(ast.dump(tree))

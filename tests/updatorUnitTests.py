@@ -831,6 +831,50 @@ class ReplaceFuncParamsTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
+  def test_change_position_param_value(self):
+    sourceCode = '''
+      import sklearn as skl
+      skl.pipeline.FeatureUnion(None)
+    '''
+
+    expectedConvertedCode = '''
+      import sklearn as skl
+      skl.pipeline.FeatureUnion('drop')
+    '''
+
+    rule = { "module": "sklearn",
+             "patternToSearch": "pipeline.FeatureUnion(None)", 
+             "patternToReplace": "pipeline.FeatureUnion('drop')" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("sklearn", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_change_keyword_param_value(self):
+    sourceCode = '''
+      import sklearn as skl
+      skl.preprocessing.quantile_transform(copy=False)
+    '''
+
+    expectedConvertedCode = '''
+      import sklearn as skl
+      skl.preprocessing.quantile_transform(copy=True)
+    '''
+
+    rule = { "module": "sklearn",
+             "patternToSearch": "preprocessing.quantile_transform(copy=False)", 
+             "patternToReplace": "preprocessing.quantile_transform(copy=True)" }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("sklearn", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
 class ReplaceParamsTypesTests(UpdatorTests):
   def setUpClass():
     print("------------------------------------")
@@ -1022,6 +1066,29 @@ class ChangeAttributeTests(UpdatorTests):
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     self.updatorRun("os", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_change_attr_value(self):
+    sourceCode = '''
+      import pandas
+      pandas.config.build = True
+    '''
+
+    expectedConvertedCode = '''
+      import pandas
+      pandas.config.build = 'auto'
+    '''
+
+    rule = { "module": "pandas",
+            "patternToSearch": "config.build = True",
+            "patternToReplace": "config.build = 'auto'" }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("pandas", fileToConvert)
 
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
