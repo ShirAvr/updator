@@ -831,6 +831,82 @@ class ReplaceFuncParamsTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
+class ReplaceParamsTypesTests(UpdatorTests):
+  def setUpClass():
+    print("------------------------------------")
+    print("Replace function params types tests")
+    print("------------------------------------")
+
+  def test_replace_position_params_to_keyword_params(self):
+    sourceCode = '''
+      import math
+      math.pow(3, 4)
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      math.pow(num1=3, num2=4)
+    '''
+
+    rule = { "module": "math", 
+             "patternToSearch": "pow($1, $2)", 
+             "patternToReplace": "pow(num1=$1, num2=$2)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_replace_keyword_params_to_position_params(self):
+    sourceCode = '''
+      import math
+      math.pow(num1=3, num2=4)
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      math.pow(3, 4)
+    '''
+
+    rule = { "module": "math", 
+             "patternToSearch": "pow(num1=$1, num2=$2)", 
+             "patternToReplace": "pow($1, $2)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_replace_position_param_to_keyword_params_compounded(self):
+    sourceCode = '''
+      import pandas as pd
+      df = pd.DataFrame([[1]])
+      df.rename({0: 1}, {0: 2})
+    '''
+
+    expectedConvertedCode = '''
+      import pandas as pd
+      df = pd.DataFrame([[1]])
+      df.rename(index={(0): 1}, columns={(0): 2})
+    '''
+
+    rule = { "module": "pandas", 
+            "assignmentPattern": "$1 = pandas.DataFrame($_)",
+            "patternToSearch": "$1.rename($2, $3)", 
+            "patternToReplace": "$1.rename(index=$2, columns=$3)",
+            "isAssignmentRule": True }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("pandas", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
 class ChangeAttributeTests(UpdatorTests):
   def setUpClass():
     print("----------------------")
