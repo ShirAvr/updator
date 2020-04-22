@@ -53,18 +53,18 @@ class UpdatorTests(unittest.TestCase):
   def test_apply_one_rule_change_params_positions(self):
     rules = [ {
         "module": "os",
-        "patternToSearch": "remove()",
-        "patternToReplace": "delete()"
+        "patternToSearch": "os.remove()",
+        "patternToReplace": "os.delete()"
       },
       {
         "module": "os",
-        "patternToSearch": "path",
-        "patternToReplace": "full_path"
+        "patternToSearch": "os.path",
+        "patternToReplace": "os.full_path"
       },
       {
         "module": "math",
-        "patternToSearch": "pow($1, $2)",
-        "patternToReplace": "pow($2, $1)"
+        "patternToSearch": "math.pow($1, $2)",
+        "patternToReplace": "math.pow($2, $1)"
       } 
     ]
 
@@ -98,18 +98,18 @@ class UpdatorTests(unittest.TestCase):
   def test_apply_two_rules_rename_func_and_attr(self):
     rules = [ {
         "module": "os",
-        "patternToSearch": "remove()",
-        "patternToReplace": "delete()"
+        "patternToSearch": "os.remove()",
+        "patternToReplace": "os.delete()"
       },
       {
         "module": "os",
-        "patternToSearch": "path",
-        "patternToReplace": "full_path"
+        "patternToSearch": "os.path",
+        "patternToReplace": "os.full_path"
       },
       {
         "module": "math",
-        "patternToSearch": "pow($1, $2)",
-        "patternToReplace": "pow($2, $1)"
+        "patternToSearch": "math.pow($1, $2)",
+        "patternToReplace": "math.pow($2, $1)"
       } 
     ]
 
@@ -143,18 +143,18 @@ class UpdatorTests(unittest.TestCase):
   def test_apply_two_rules_on_the_same_expression(self):
     rules = [ {
         "module": "os",
-        "patternToSearch": "remove($_)",
-        "patternToReplace": "delete($_)"
+        "patternToSearch": "os.remove($_)",
+        "patternToReplace": "os.delete($_)"
       },
       {
         "module": "os",
-        "patternToSearch": "path",
-        "patternToReplace": "full_path"
+        "patternToSearch": "os.path",
+        "patternToReplace": "os.full_path"
       },
       {
         "module": "math",
-        "patternToSearch": "pow($1, $2)",
-        "patternToReplace": "pow($2, $1)"
+        "patternToSearch": "math.pow($1, $2)",
+        "patternToReplace": "math.pow($2, $1)"
       } 
     ]
 
@@ -188,23 +188,23 @@ class UpdatorTests(unittest.TestCase):
   def test_execute_with_differents_modules(self):
     rules = [ {
         "module": "os",
-        "patternToSearch": "remove($_)",
-        "patternToReplace": "delete($_)"
+        "patternToSearch": "os.remove($_)",
+        "patternToReplace": "os.delete($_)"
       },
       {
         "module": "os",
-        "patternToSearch": "path",
-        "patternToReplace": "full_path"
+        "patternToSearch": "os.path",
+        "patternToReplace": "os.full_path"
       },
       {
         "module": "math",
-        "patternToSearch": "pow($1, $2)",
-        "patternToReplace": "pow($2, $1)"
+        "patternToSearch": "math.pow($1, $2)",
+        "patternToReplace": "math.pow($2, $1)"
       },
       {
         "module": "tensorflow",
-        "patternToSearch": "Variable($1, $2)",
-        "patternToReplace": "Variable($1)"
+        "patternToSearch": "tensorflow.Variable($1, $2)",
+        "patternToReplace": "tensorflow.Variable($1)"
       } 
     ]
 

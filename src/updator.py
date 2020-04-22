@@ -47,12 +47,12 @@ def findModuleAlias(tree, moduleName):
 
 
 def applyRule(rule, module, tree):
-  if rule.get("isAssignmentRule"):
-    applyAssignmentRule(rule, module, tree, shouldBuild=False)
-  else:
-    if rule.get("applyToAssignment"):
-      applyAssignmentRule(rule, module, tree, shouldBuild=True)
+  assignmentRule = rule.get("assignmentRule")
 
+  if assignmentRule:
+    applyAssignmentRule(rule, module, tree, assignmentRule)
+
+  if (assignmentRule is None) or (assignmentRule == "auto"):
     patternVars = {}
     
     rule = patternBuilder.prepareRule(rule, module)
@@ -90,8 +90,8 @@ def applyRule(rule, module, tree):
 
 # def cli(module, filepath, argv=None):
 
-def applyAssignmentRule(rule,  module, tree, shouldBuild):
-  assignmentRule = patternBuilder.createAssignmentRule(rule, module, shouldBuild)
+def applyAssignmentRule(rule,  module, tree, assignmentType):
+  assignmentRule = patternBuilder.createAssignmentRule(rule, module, assignmentType)
   patternVars = {}
 
   astConverter = AstConverter(assignmentRule, patternVars, assignRule=True)

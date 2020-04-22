@@ -38,7 +38,8 @@ class AstConverter:
         # print("=")
 
         if isinstance(node, nodetype) and is_ast_like(node, patternToSearch, patternSelf.variables):
-          # print("found node: " + ast.dump(node))
+          # print("patternToReplace: ", ast.dump(patternToReplace))
+          # print("variables", patternSelf.variables)
           if patternToReplace is not None and patternSelf.variables != {}:
             newNode = AstConverter.fillVariables(patternSelf, node, patternToReplace)
             newNode = AstConverter.wrapToNewLine(patternSelf, newNode, node)

@@ -5,7 +5,6 @@ import traceback
 from src.dbInterface import DbInterface
 from src.updator import main
 from click.testing import CliRunner
-# import src.updator as updator
 
 
 fileToConvert = "./tests/codeFileToConvert.py"
@@ -64,8 +63,8 @@ class UpdatorGenericTests(UpdatorTests):
     expectedConvertedCode = sourceCode
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($_)", 
-             "patternToReplace": "pow2($_)" }
+             "patternToSearch": "math.pow($_)", 
+             "patternToReplace": "math.pow2($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -91,8 +90,8 @@ class UpdatorGenericTests(UpdatorTests):
     '''
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($_)", 
-             "patternToReplace": "pow2($_)" }
+             "patternToSearch": "math.pow($_)", 
+             "patternToReplace": "math.pow2($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -120,8 +119,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-             "patternToSearch": "remove()", 
-             "patternToReplace": "delete()" }
+             "patternToSearch": "os.remove()", 
+             "patternToReplace": "os.delete()" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -143,8 +142,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($1, $2)", 
-         "patternToReplace": "delete($1, $2)" }
+         "patternToSearch": "os.remove($1, $2)", 
+         "patternToReplace": "os.delete($1, $2)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -166,8 +165,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete($_)" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -189,8 +188,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($1, $2)", 
-         "patternToReplace": "delete($2, $1)" }
+         "patternToSearch": "os.remove($1, $2)", 
+         "patternToReplace": "os.delete($2, $1)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -211,8 +210,8 @@ class RenameFunctionTests(UpdatorTests):
     expectedConvertedCode = sourceCode
 
     rule = { "module": "math", 
-         "patternToSearch": "pow()", 
-         "patternToReplace": "pow2()" }
+         "patternToSearch": "math.pow()", 
+         "patternToReplace": "math.pow2()" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -232,8 +231,8 @@ class RenameFunctionTests(UpdatorTests):
     expectedConvertedCode = sourceCode
 
     rule = { "module": "math", 
-         "patternToSearch": "pow($1, $2, $3)", 
-         "patternToReplace": "pow2()" }
+         "patternToSearch": "math.pow($1, $2, $3)", 
+         "patternToReplace": "math.pow2()" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -253,8 +252,8 @@ class RenameFunctionTests(UpdatorTests):
     expectedConvertedCode = sourceCode
 
     rule = { "module": "math", 
-         "patternToSearch": "pow($1)", 
-         "patternToReplace": "pow2()" }
+         "patternToSearch": "math.pow($1)", 
+         "patternToReplace": "math.pow2()" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -275,8 +274,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete($_)" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -298,8 +297,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete($_)" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -321,8 +320,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete($_)" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -344,8 +343,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete($_)" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -367,8 +366,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete($_)" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -390,8 +389,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete($_)" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete($_)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -413,8 +412,8 @@ class RenameFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($1, $2)", 
-         "patternToReplace": "delete($2, $1)" }
+         "patternToSearch": "os.remove($1, $2)", 
+         "patternToReplace": "os.delete($2, $1)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -443,7 +442,7 @@ class RemoveFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove()", 
+         "patternToSearch": "os.remove()", 
          "patternToReplace": "" }
              
     self.insertRule(rule)
@@ -467,7 +466,7 @@ class RemoveFunctionTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
+         "patternToSearch": "os.remove($_)", 
          "patternToReplace": "" }
              
     self.insertRule(rule)
@@ -496,8 +495,8 @@ class RemoveFunctionParamTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($1, $2)", 
-         "patternToReplace": "delete($1)" }
+         "patternToSearch": "os.remove($1, $2)", 
+         "patternToReplace": "os.delete($1)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -519,8 +518,8 @@ class RemoveFunctionParamTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($1, $2)", 
-         "patternToReplace": "delete($2)" }
+         "patternToSearch": "os.remove($1, $2)", 
+         "patternToReplace": "os.delete($2)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -542,8 +541,8 @@ class RemoveFunctionParamTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($1, $2, $3)", 
-         "patternToReplace": "delete($1, $3)" }
+         "patternToSearch": "os.remove($1, $2, $3)", 
+         "patternToReplace": "os.delete($1, $3)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -565,8 +564,8 @@ class RemoveFunctionParamTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($1, $2, $3)", 
-         "patternToReplace": "delete($1, $3)" }
+         "patternToSearch": "os.remove($1, $2, $3)", 
+         "patternToReplace": "os.delete($1, $3)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -588,8 +587,8 @@ class RemoveFunctionParamTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-         "patternToSearch": "remove($_)", 
-         "patternToReplace": "delete()" }
+         "patternToSearch": "os.remove($_)", 
+         "patternToReplace": "os.delete()" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -621,8 +620,8 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($1, $2)", 
-             "patternToReplace": "pow($2, $1)" }
+             "patternToSearch": "math.pow($1, $2)", 
+             "patternToReplace": "math.pow($2, $1)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -643,8 +642,8 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($1, $2)", 
-             "patternToReplace": "pow($2, $1)" }
+             "patternToSearch": "math.pow($1, $2)", 
+             "patternToReplace": "math.pow($2, $1)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -665,10 +664,10 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "stringTool", 
-             "property": "join",
-             "patternToSearch": "join($1, $2)", 
-             "patternToReplace": "join($2, $1)",
-             "applyToAssignment": True }
+             "property": "stringTool.join",
+             "patternToSearch": "stringTool.join($1, $2)", 
+             "patternToReplace": "stringTool.join($2, $1)",
+             "assignmentRule": "auto" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -693,8 +692,8 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($1, $2)", 
-             "patternToReplace": "pow($2, $1)" }
+             "patternToSearch": "math.pow($1, $2)", 
+             "patternToReplace": "math.pow($2, $1)" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -718,10 +717,10 @@ class ReplaceFuncParamsTests(UpdatorTests):
 
     rule = { 
       "module": "math",
-      "property": "pow",
-      "patternToSearch": "pow($1, $2)",
-      "patternToReplace": "pow($2, $1)",
-      "applyToAssignment": True 
+      "property": "math.pow",
+      "patternToSearch": "math.pow($1, $2)",
+      "patternToReplace": "math.pow($2, $1)",
+      "assignmentRule": "auto" 
     }
 
     self.insertRule(rule)
@@ -748,10 +747,10 @@ class ReplaceFuncParamsTests(UpdatorTests):
 
     rule = { 
       "module": "math",
-      "property": "pow",
-      "patternToSearch": "pow($1, $2)",
-      "patternToReplace": "pow($2, $1)",
-      "applyToAssignment": True 
+      "property": "math.pow",
+      "patternToSearch": "math.pow($1, $2)",
+      "patternToReplace": "math.pow($2, $1)",
+      "assignmentRule": "auto" 
     }
 
     self.insertRule(rule)
@@ -788,10 +787,10 @@ class ReplaceFuncParamsTests(UpdatorTests):
 
     rule = { 
       "module": "math",
-      "property": "pow",
-      "patternToSearch": "pow($1, $2)",
-      "patternToReplace": "pow($2, $1)",
-      "applyToAssignment": True 
+      "property": "math.pow",
+      "patternToSearch": "math.pow($1, $2)",
+      "patternToReplace": "math.pow($2, $1)",
+      "assignmentRule": "auto" 
     }
 
     self.insertRule(rule)
@@ -818,10 +817,10 @@ class ReplaceFuncParamsTests(UpdatorTests):
 
     rule = { 
       "module": "math",
-      "property": "pow",
-      "patternToSearch": "pow($1, $2)",
-      "patternToReplace": "pow($2, $1)",
-      "applyToAssignment": True 
+      "property": "math.pow",
+      "patternToSearch": "math.pow($1, $2)",
+      "patternToReplace": "math.pow($2, $1)",
+      "assignmentRule": "auto" 
     }
 
     self.insertRule(rule)
@@ -843,8 +842,8 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "sklearn",
-             "patternToSearch": "pipeline.FeatureUnion(None)", 
-             "patternToReplace": "pipeline.FeatureUnion('drop')" }
+             "patternToSearch": "sklearn.pipeline.FeatureUnion(None)", 
+             "patternToReplace": "sklearn.pipeline.FeatureUnion('drop')" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -865,8 +864,8 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "sklearn",
-             "patternToSearch": "preprocessing.quantile_transform(copy=False)", 
-             "patternToReplace": "preprocessing.quantile_transform(copy=True)" }
+             "patternToSearch": "sklearn.preprocessing.quantile_transform(copy=False)", 
+             "patternToReplace": "sklearn.preprocessing.quantile_transform(copy=True)" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -893,8 +892,8 @@ class ReplaceParamsTypesTests(UpdatorTests):
     '''
 
     rule = { "module": "math", 
-             "patternToSearch": "pow($1, $2)", 
-             "patternToReplace": "pow(num1=$1, num2=$2)" }
+             "patternToSearch": "math.pow($1, $2)", 
+             "patternToReplace": "math.pow(num1=$1, num2=$2)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -915,8 +914,8 @@ class ReplaceParamsTypesTests(UpdatorTests):
     '''
 
     rule = { "module": "math", 
-             "patternToSearch": "pow(num1=$1, num2=$2)", 
-             "patternToReplace": "pow($1, $2)" }
+             "patternToSearch": "math.pow(num1=$1, num2=$2)", 
+             "patternToReplace": "math.pow($1, $2)" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -942,7 +941,7 @@ class ReplaceParamsTypesTests(UpdatorTests):
             "assignmentPattern": "$1 = pandas.DataFrame($_)",
             "patternToSearch": "$1.rename($2, $3)", 
             "patternToReplace": "$1.rename(index=$2, columns=$3)",
-            "isAssignmentRule": True }
+            "assignmentRule": "manual" }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -968,7 +967,7 @@ class ChangeAttributeTests(UpdatorTests):
       os.full_path
     '''
 
-    rule = { "module": "os", "patternToSearch": "path", "patternToReplace": "full_path" }
+    rule = { "module": "os", "patternToSearch": "os.path", "patternToReplace": "os.full_path" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     self.updatorRun("os", fileToConvert)
@@ -989,8 +988,8 @@ class ChangeAttributeTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-            "patternToSearch": "name", 
-            "patternToReplace": "full_name" }
+            "patternToSearch": "os.name", 
+            "patternToReplace": "os.full_name" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1012,8 +1011,8 @@ class ChangeAttributeTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-            "patternToSearch": "name.upper",
-            "patternToReplace": "name.up" }
+            "patternToSearch": "os.name.upper",
+            "patternToReplace": "os.name.up" }
             
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1022,7 +1021,6 @@ class ChangeAttributeTests(UpdatorTests):
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
-
 
   def test_rename_attr_inside_attr_as_assignment(self):
     sourceCode = '''
@@ -1038,12 +1036,12 @@ class ChangeAttributeTests(UpdatorTests):
     '''
 
     rule = { "module": "os", 
-            "patternToSearch": "name.upper",
-            "patternToReplace": "name.up",
-            "property": "name",
-            "applyToAssignment": True
+            "patternToSearch": "os.name.upper",
+            "patternToReplace": "os.name.up",
+            "property": "os.name",
+            "assignmentRule": "auto"
           }
-            
+
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     self.updatorRun("os", fileToConvert)
@@ -1062,7 +1060,7 @@ class ChangeAttributeTests(UpdatorTests):
       import os
     '''
 
-    rule = { "module": "os", "patternToSearch": "path", "patternToReplace": "" }
+    rule = { "module": "os", "patternToSearch": "os.path", "patternToReplace": "" }
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
     self.updatorRun("os", fileToConvert)
@@ -1083,8 +1081,8 @@ class ChangeAttributeTests(UpdatorTests):
     '''
 
     rule = { "module": "pandas",
-            "patternToSearch": "config.build = True",
-            "patternToReplace": "config.build = 'auto'" }
+            "patternToSearch": "pandas.config.build = True",
+            "patternToReplace": "pandas.config.build = 'auto'" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1112,8 +1110,8 @@ class CombinationTypeTests(UpdatorTests):
     '''
 
     rule = { "module": "pandas",
-            "patternToSearch": "name = $1",
-            "patternToReplace": "setName($1)" }
+            "patternToSearch": "pandas.name = $1",
+            "patternToReplace": "pandas.setName($1)" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1136,11 +1134,11 @@ class CombinationTypeTests(UpdatorTests):
       m = m.setName('myName')
     '''
 
-    rule = { "module": "pandas", 
+    rule = { "module": "pandas",
             "assignmentPattern": "$1 = pandas.MultiIndex.from_tuples($_)",
             "patternToSearch": "$1.name = $2", 
             "patternToReplace": "$1 = $1.setName($2)",
-            "isAssignmentRule": True }
+            "assignmentRule": "manual" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1167,7 +1165,7 @@ class CombinationTypeTests(UpdatorTests):
             "assignmentPattern": "$1 = pandas.MultiIndex.from_tuples($_)",
             "patternToSearch": "$1.name = $2", 
             "patternToReplace": "$1 = $1.setName($2)",
-            "isAssignmentRule": True }
+            "assignmentRule": "manual" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1189,8 +1187,8 @@ class CombinationTypeTests(UpdatorTests):
     '''
 
     rule = { "module": "pandas",
-            "patternToSearch": "setName($1)",
-            "patternToReplace": "name = $1" }
+            "patternToSearch": "pandas.setName($1)",
+            "patternToReplace": "pandas.name = $1" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1212,8 +1210,8 @@ class CombinationTypeTests(UpdatorTests):
     '''
 
     rule = { "module": "pandas",
-            "patternToSearch": "MultiIndex.setName($1)",
-            "patternToReplace": "MultiIndex.name = $1" }
+            "patternToSearch": "pandas.MultiIndex.setName($1)",
+            "patternToReplace": "pandas.MultiIndex.name = $1" }
 
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
@@ -1222,3 +1220,63 @@ class CombinationTypeTests(UpdatorTests):
     actualConvertedCode = self.dropWhitespace(self.readCodeFile())
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+class ChangeFuncReturnTests(UpdatorTests):
+  def setUpClass():
+    print("---------------------------------------")
+    print("Change in function return values tests")
+    print("---------------------------------------")
+
+  def test_change_func_return_list_order(self):
+    sourceCode = '''
+      import math as m
+      [x, y] = m.getPosition()
+    '''
+
+    expectedConvertedCode = '''
+      import math as m
+      [y, x] = m.getPosition()
+    '''
+
+    rule = { 
+              "module": "math",
+              "patternToSearch": "[$1, $2] = math.getPosition()", 
+              "patternToReplace": "[$2, $1] = math.getPosition()"
+            }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+  def test_change_func_return_from_value_to_list_of_vars(self):
+    sourceCode = '''
+      import http
+      handler = http.server.SimpleHTTPRequestHandler
+      serverStatus = http.server.getStatus(handler)
+    '''
+
+    expectedConvertedCode = '''
+      import http
+      handler = http.server.SimpleHTTPRequestHandler
+      [serverStatus, code] = http.server.getStatus(handler)
+    '''
+
+    rule = { 
+              "module": "http",
+              "patternToSearch": "$1 = http.server.getStatus($_)", 
+              "patternToReplace": "[$1, code] = http.server.getStatus($_)"
+            }
+
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("http", fileToConvert)
+
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
+
