@@ -66,30 +66,6 @@ def applyRule(rule, module, tree):
     
     astConverter.scan_ast(tree)
 
-# def applyRule(rule, module, tree):
-#   if rule.get("applyToAssignment"):
-#     applyAssignmentRule(rule, module, tree)
-
-#   patternVars = {}
-  
-#   rule = patternBuilder.prepareRule(rule, module)
-#   astConverter = AstConverter(rule, patternVars)
-
-#   # print("patternToSearch: " + ast.dump(patternToSearch))
-#   # print("patternToReplace: " + ast.dump(patternToReplace))
-
-#   # print("=========== before ==========")
-#   # print(ast.dump(tree))
-#   # print("==============================")
-  
-#   astConverter.scan_ast(tree)
-  
-#   # print("=========== after: ==========")
-#   # print(ast.dump(tree))
-#   # print("============================")
-
-# def cli(module, filepath, argv=None):
-
 def applyAssignmentRule(rule,  module, tree, assignmentType):
   assignmentRule = patternBuilder.createAssignmentRule(rule, module, assignmentType)
   patternVars = {}
@@ -99,16 +75,38 @@ def applyAssignmentRule(rule,  module, tree, assignmentType):
 
 def showRules(dbInterface, lib):
   rules = dbInterface.findAllRulesByLib(lib)
-  rules = list(map(lambda r: [r["patternToSearch"], r["patternToReplace"], r["active"]], rules))
+  rules = list(map(lambda r: [r["patternToSearch"], r["patternToReplace"], r.get("assignmentPattern"), r.get("assignmentRule") or False, r["active"]], rules))
 
   if rules == []:
     print("library '" + lib + "' does not exists.")
   else:
     print("Rules for '" + lib + "' library: \n")
-    print(tabulate(rules, headers=["id", "patternToSearch", "patternToReplace", "active"], showindex="always"))
+    print(tabulate(rules, headers=["id", "patternToSearch", "patternToReplace", "assignmentPattern", "hasAssignmentType", "active"], showindex="always"))
 
   return rules
 
+def isRuleValid(rule, lib, assignmentType):
+  try:
+    if assignmentType is not None and assignmentType == "manual":
+      patternBuilder.createAssignmentRule(rule, lib, assignmentType)
+    else:
+      patternBuilder.prepareRule(rule, lib)
+    return True
+  except Exception as e:
+    print(e)
+    return False
+
+def createRule(rule, assignmentType, assignmentPattern, property):
+  if assignmentType:
+    rule["assignmentRule"] = assignmentType
+
+  if assignmentPattern:
+    rule["assignmentPattern"] = assignmentPattern
+
+  if property:
+    rule["property"] = property
+
+  return rule
 
 @click.group()
 
@@ -120,7 +118,6 @@ def main():
 # @click.argument('path', metavar="path", type=click.Path(exists=True))
 @click.argument('path', metavar="path", type=click.STRING)
 
-# def main(module, filepath, argv=None):  
 def run(lib, path):
   """execute updator to apply the upgrade"""
   fsInterface = FsInterface()
@@ -137,14 +134,9 @@ def run(lib, path):
 
   for rule in rules:
     applyRule(rule, moduleAlias, tree)
-  
-  # print("=========== after: ==========")
-  # print(ast.dump(tree))
-  # print("============================")
+
   convertedCode = astor.to_source(tree)
   fsInterface.saveConvertedCode(path, convertedCode)
-
-  # print("finish")
 
 @main.command()
 def show_libs():
@@ -191,22 +183,35 @@ def reactivate_rule(lib):
 @click.argument('lib', metavar="lib", type=click.STRING)
 def add_rule(lib):
   """add rule to a certain library"""
+  assignmentChoices = ["auto", "manual"]
+  assignmentType = click.prompt("Chose a type of assignment rule or (empty enter to none)", default=False, type=click.Choice(assignmentChoices))
+  assignmentPattern = None
+  property = None
+
+  if assignmentType is not None:
+    if assignmentType == "manual":
+      assignmentPattern = click.prompt("Enter pattern of assignment", type=click.STRING)
+    elif assignmentType == "auto":
+      property = click.prompt("Enter the property to which the change applies", type=click.STRING)
+
   patternToSearch = click.prompt("Enter pattern to search", type=click.STRING)
   patternToReplace = click.prompt("Enter pattern to replace", type=click.STRING)
   click.confirm("Do you confirm?", abort=True)
 
-  try:
-    ast.parse(patternToSearch)
-    ast.parse(patternToReplace)
-  except:
-    print("Given patterns are not valid.")
-  else:
-    DbInterface().insertRule({
-      "module": lib,
-      "patternToSearch": patternToSearch,
-      "patternToReplace": patternToReplace
-    })
+  base_rule = {
+    "module": lib,
+    "patternToSearch": patternToSearch,
+    "patternToReplace": patternToReplace
+  }
+
+  rule = createRule(base_rule, assignmentType, assignmentPattern, property)
+
+  if isRuleValid(rule, lib, assignmentType):
+    DbInterface().insertRule(rule)
     print("Inserted given rule successfully.")
+  else:
+    print("Given rule patterns are not valid.")
+
 
 if __name__ == '__main__':
   main()
