@@ -21,9 +21,9 @@ def findModuleAlias(tree, moduleName):
       self.aliasModuleName = None
 
     def visit_alias(self, node):
-      if (node.name is self.moduleName and node.asname is not None):
+      if (node.name == self.moduleName and node.asname is not None):
         self.aliasModuleName = node.asname
-      elif (node.name is self.moduleName and node.asname is None):
+      elif (node.name == self.moduleName and node.asname is None):
         self.aliasModuleName = node.name
 
     def get_found_alias(self):
@@ -44,7 +44,6 @@ def findModuleAlias(tree, moduleName):
   aliasFinderClass = ImportFinder(moduleName)
   aliasFinderClass.visit(tree)
   return aliasFinderClass.get_found_alias()
-
 
 def applyRule(rule, module, tree):
   assignmentRule = rule.get("assignmentRule")
@@ -87,7 +86,7 @@ def showRules(dbInterface, lib):
 
 def isRuleValid(rule, lib, assignmentType):
   try:
-    if assignmentType is not None and assignmentType == "manual":
+    if assignmentType:
       patternBuilder.createAssignmentRule(rule, lib, assignmentType)
     else:
       patternBuilder.prepareRule(rule, lib)
@@ -137,6 +136,7 @@ def run(lib, path):
 
   convertedCode = astor.to_source(tree)
   fsInterface.saveConvertedCode(path, convertedCode)
+  # print("updator executed successfully.")
 
 @main.command()
 def show_libs():
