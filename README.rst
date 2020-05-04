@@ -1,6 +1,8 @@
 Updator
 -------
 
+Always be up-to-date!
+
 Updator is a tool to automatically upgrade python libraries.
 It defines API changes rules which is actually python patterns (with some extras) that will transform into ast.
 The rules were designed to be written by the libraries' authors, but that will happen later on.
