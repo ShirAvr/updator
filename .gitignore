@@ -2,3 +2,7 @@
 /dist/
 MANIFEST
 *.pyc
+codeplay.py
+sourceCode.py
+tests/convertedCode.py
+tests/sourceCode.py

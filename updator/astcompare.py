@@ -1,6 +1,6 @@
 """Check Python ASTs against templates"""
 import ast
-import src.astPatternBuilder as patternBuilder
+import updator.astPatternBuilder as patternBuilder
 
 
 def check_node_list(sample, template, assignment, variables, start_enumerate=0):

@@ -5,12 +5,11 @@ import click
 import os.path
 import os
 from tabulate import tabulate
-import src.astPatternBuilder as patternBuilder
-from src.dbInterface import DbInterface
-from src.fsInterface import FsInterface
-from src.astConverter import AstConverter
+import updator.astPatternBuilder as patternBuilder
+from updator.dbInterface import DbInterface
+from updator.fsInterface import FsInterface
+from updator.astConverter import AstConverter
 
-__version__ = '0.1'
 
 def findModuleAlias(tree, moduleName):
   class AliasFinder(ast.NodeVisitor):

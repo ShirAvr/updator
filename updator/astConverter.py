@@ -1,7 +1,7 @@
 import ast
 import copy
-import src.astPatternBuilder as patternBuilder
-from src.astcompare import is_ast_like 
+import updator.astPatternBuilder as patternBuilder
+from updator.astcompare import is_ast_like 
 
 
 class AstConverter:
