@@ -42,7 +42,8 @@ def createAssignmentRule(rule, alias, assignmentType):
 
   # print("assignmentPattern: "+ assignmentPattern)
   # print("patternToSearch: "+ patternToSearch)
-  # print("patternToReplace: "+ patternToReplace)
+  # print("patternToReplace: "+ patternToReplace)  
+    
   module = rule["module"]
 
   rule = {

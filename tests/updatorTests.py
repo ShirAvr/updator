@@ -1,9 +1,8 @@
 import sys
 import unittest
 import textwrap
-from src.dbInterface import DbInterface
-from src.updator import main
-# import src.updator as updator
+from updator.dbInterface import DbInterface
+from updator.updator import main
 from click.testing import CliRunner
 
 fileToConvert = "./tests/codeFileToConvert.py"

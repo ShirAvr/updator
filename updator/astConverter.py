@@ -30,8 +30,7 @@ class AstConverter:
         ast.NodeVisitor.visit(self, node)
 
         if isinstance(node, nodetype) and is_ast_like(node, patternToSearch, patternSelf.variables):
-          newNode = patternSelf.replaceNodes(patternToReplace, node)
-          return newNode
+          return patternSelf.getReplacedNode(patternToReplace, node)
 
         elif patternSelf.isInvalidNode(node):
           return None
@@ -64,8 +63,7 @@ class AstConverter:
             patternSelf.foundAssign and 
             is_ast_like(node, patternToSearch, patternSelf.variables, assignment=True)):
 
-            newNode = patternSelf.replaceNodes(patternToReplace, node)
-            return newNode
+            return patternSelf.getReplacedNode(patternToReplace, node)
 
         elif patternSelf.isInvalidNode(node):
           return None
@@ -74,7 +72,7 @@ class AstConverter:
 
     convertTree().visit(tree)
 
-  def replaceNodes(self, patternToReplace, oldNode):
+  def getReplacedNode(self, patternToReplace, oldNode):
     if patternToReplace is not None and self.variables != {}:
       newNode = self.fillVariables(oldNode, patternToReplace)
       newNode = self.wrapToNewLine(newNode, oldNode)

@@ -2,8 +2,8 @@ import sys
 import unittest
 import textwrap
 import traceback
-from src.dbInterface import DbInterface
-from src.updator import main
+from updator.dbInterface import DbInterface
+from updator.updator import main
 from click.testing import CliRunner
 
 
@@ -750,7 +750,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
       "property": "math.pow",
       "patternToSearch": "math.pow($1, $2)",
       "patternToReplace": "math.pow($2, $1)",
-      "assignmentRule": "auto" 
+      "assignmentRule": "auto"
     }
 
     self.insertRule(rule)
@@ -842,7 +842,7 @@ class ReplaceFuncParamsTests(UpdatorTests):
     '''
 
     rule = { "module": "sklearn",
-             "patternToSearch": "sklearn.pipeline.FeatureUnion(None)", 
+             "patternToSearch": "sklearn.pipeline.FeatureUnion(None)",
              "patternToReplace": "sklearn.pipeline.FeatureUnion('drop')" }
              
     self.insertRule(rule)
@@ -1265,7 +1265,7 @@ class ChangeFuncReturnTests(UpdatorTests):
       [serverStatus, code] = http.server.getStatus(handler)
     '''
 
-    rule = { 
+    rule =  { 
               "module": "http",
               "patternToSearch": "$1 = http.server.getStatus($_)", 
               "patternToReplace": "[$1, code] = http.server.getStatus($_)"

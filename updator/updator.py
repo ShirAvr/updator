@@ -1,6 +1,5 @@
 import ast
 import astor
-# import argparse
 import click
 import os.path
 import os
@@ -109,7 +108,7 @@ def createRule(rule, assignmentType, assignmentPattern, property):
 @click.group()
 
 def main():
-  """Automatically upgrade your code"""
+  """Automatically upgrade python libraries"""
 
 @main.command()
 @click.argument('lib', metavar="lib", type=click.STRING)
@@ -135,7 +134,7 @@ def run(lib, path):
 
   convertedCode = astor.to_source(tree)
   fsInterface.saveConvertedCode(path, convertedCode)
-  # print("updator executed successfully.")
+  print("updator upgraded '" + lib + "' lib successfully.")
 
 @main.command()
 def show_libs():

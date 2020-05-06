@@ -1,6 +1,6 @@
 #!/usr/local/bin/python3
-"""Command line entry point for updator"""
+"""Automatically upgrade python libraries"""
 
-__version__ = '0.1.0'
+__version__ = '0.1.4'
 
 from updator.updator import main
