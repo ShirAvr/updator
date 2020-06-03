@@ -39,7 +39,29 @@ rules = [
     "patternToSearch": "math.fmod($1, $2)",
     "patternToReplace": "math.fmod($2, $1)",
     "assignmentRule": "auto"
-	}
+	},
+	{
+    "module": "http",
+    "patternToSearch": "$1 = http.server.getStatus($_)", 
+    "patternToReplace": "[$1, code] = http.server.getStatus($_)"
+  },
+  { 
+  	"module": "sklearn",
+    "patternToSearch": "sklearn.pipeline.FeatureUnion(None)",
+    "patternToReplace": "sklearn.pipeline.FeatureUnion('drop')" 
+  },
+  { 
+    "module": "pandas", 
+    "assignmentPattern": "$1 = pandas.DataFrame($_)",
+    "patternToSearch": "$1.rename($2, $3)", 
+    "patternToReplace": "$1.rename(index=$2, columns=$3)",
+    "assignmentRule": "manual" 
+  },
+  {
+    "module": "math",
+    "patternToSearch": "math.abs($_)",
+    "patternToReplace": "math.fabs($_)"
+  }
 ]
 
 dbInterface = DbInterface()

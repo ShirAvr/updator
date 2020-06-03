@@ -72,7 +72,7 @@ def applyAssignmentRule(rule,  module, tree, assignmentType):
 
 def showRules(dbInterface, lib):
   rules = dbInterface.findAllRulesByLib(lib)
-  rules = list(map(lambda r: [r["patternToSearch"], r["patternToReplace"], r.get("assignmentPattern"), r.get("assignmentRule") or False, r["active"]], rules))
+  rules = list(map(lambda r: [r["patternToSearch"], r["patternToReplace"], r.get("assignmentPattern"), r.get("assignmentRule"), r["active"]], rules))
 
   if rules == []:
     print("library '" + lib + "' does not exists.")
@@ -90,7 +90,6 @@ def isRuleValid(rule, lib, assignmentType):
       patternBuilder.prepareRule(rule, lib)
     return True
   except Exception as e:
-    print(e)
     return False
 
 def createRule(rule, assignmentType, assignmentPattern, property):
@@ -186,7 +185,7 @@ def add_rule(lib):
   assignmentPattern = None
   property = None
 
-  if assignmentType is not None:
+  if assignmentType:
     if assignmentType == "manual":
       assignmentPattern = click.prompt("Enter pattern of assignment", type=click.STRING)
     elif assignmentType == "auto":

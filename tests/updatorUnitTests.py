@@ -630,6 +630,32 @@ class ReplaceFuncParamsTests(UpdatorTests):
     expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
     self.assertTrue(actualConvertedCode == expectedConvertedCode)
 
+  def test_replace_params_positions_when_params_are_compound_vars(self):
+    sourceCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(x + f(1,2) / g(y), z)     
+    '''
+
+    expectedConvertedCode = '''
+      import math
+      x = 2
+      y = 3
+      math.pow(z, x + f(1,2) / g(y))
+    '''
+
+    rule = { "module": "math", 
+             "patternToSearch": "math.pow($1, $2)", 
+             "patternToReplace": "math.pow($2, $1)" }
+             
+    self.insertRule(rule)
+    self.createCodeFile(sourceCode)
+    self.updatorRun("math", fileToConvert)
+    actualConvertedCode = self.dropWhitespace(self.readCodeFile())
+    expectedConvertedCode = self.dropWhitespace(expectedConvertedCode)
+    self.assertTrue(actualConvertedCode == expectedConvertedCode)
+
   def test_replace_params_positions_when_params_hard_coded_int(self):
     sourceCode = '''
       import math
@@ -937,11 +963,13 @@ class ReplaceParamsTypesTests(UpdatorTests):
       df.rename(index={(0): 1}, columns={(0): 2})
     '''
 
-    rule = { "module": "pandas", 
+    rule = { 
+            "module": "pandas", 
             "assignmentPattern": "$1 = pandas.DataFrame($_)",
             "patternToSearch": "$1.rename($2, $3)", 
             "patternToReplace": "$1.rename(index=$2, columns=$3)",
-            "assignmentRule": "manual" }
+            "assignmentRule": "manual" 
+            }
              
     self.insertRule(rule)
     self.createCodeFile(sourceCode)
