@@ -22,7 +22,6 @@ class DbInterface:
 		self.rules.insert_one(rule)
 
 	def insertRules(self, rules):
-		# [rule.setdefault("active", True) for rule in rules]
 		for rule in rules:
 			rule["active"] = True
 		self.rules.insert_many(rules)

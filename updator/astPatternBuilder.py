@@ -40,10 +40,6 @@ def createAssignmentRule(rule, alias, assignmentType):
     patternToSearch = rule["patternToSearch"]
     patternToReplace = rule["patternToReplace"]
 
-  # print("assignmentPattern: "+ assignmentPattern)
-  # print("patternToSearch: "+ patternToSearch)
-  # print("patternToReplace: "+ patternToReplace)  
-    
   module = rule["module"]
 
   rule = {

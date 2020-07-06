@@ -54,12 +54,6 @@ def applyRule(rule, module, tree):
     
     rule = patternBuilder.prepareRule(rule, module)
     astConverter = AstConverter(rule, patternVars)
-
-    # print("patternToSearch: " + ast.dump(rule["patternToSearch"]))
-
-    # print("=========== before ==========")
-    # print(ast.dump(tree))
-    # print("==============================")
     
     astConverter.scan_ast(tree)
 
@@ -111,8 +105,7 @@ def main():
 
 @main.command()
 @click.argument('lib', metavar="lib", type=click.STRING)
-# @click.argument('path', metavar="path", type=click.Path(exists=True))
-@click.argument('path', metavar="path", type=click.STRING)
+@click.argument('path', metavar="path", type=click.Path(exists=True))
 
 def run(lib, path):
   """execute updator to apply the upgrade"""
